@@ -1,10 +1,101 @@
-# fast_qr_reader_view
+# Fast QR Reader View Plugin
 
-A new flutter plugin project.
+A Flutter plugin for iOS and Android allowing access to the device cameras to scan QR codes. **Heavily based on [camera](https://pub.dartlang.org/packages/camera)**
 
-## Getting Started
+## Features:
 
-For help getting started with Flutter, view our online
-[documentation](https://flutter.io/).
+* Display live camera preview in a widget.
+* Uses native AVFoundation QR code detection in iOS
+* Uses ML Kit in Android
 
-For help on editing plugin code, view the [documentation](https://flutter.io/platform-plugins/#edit-code).
+## Installation
+
+First, add `fast_qr_reader_view` as a [dependency in your pubspec.yaml file](https://flutter.io/using-packages/).
+
+### iOS
+
+Add a row to the `ios/Runner/Info.plist` with the key `Privacy - Camera Usage Description` and a usage description.
+
+Or in text format add the key:
+
+```xml
+<key>NSCameraUsageDescription</key>
+<string>Can I use the camera please?</string>
+```
+
+### Android
+
+Add Firebase to your project following [this step](https://codelabs.developers.google.com/codelabs/flutter-firebase/#5) (only that step, not the entire guide).
+
+Change the minimum Android sdk version to 21 (or higher) in your `android/app/build.gradle` file.
+
+```
+minSdkVersion 21
+```
+
+### Example
+
+Here is a small example flutter app displaying a full screen camera preview.
+
+```dart
+import 'dart:async';
+import 'package:flutter/material.dart';
+import 'package:fast_qr_reader_view/fast_qr_reader_view.dart';
+
+List<CameraDescription> cameras;
+
+Future<Null> main() async {
+  cameras = await availableCameras();
+  runApp(new CameraApp());
+}
+
+class CameraApp extends StatefulWidget {
+  @override
+  _CameraAppState createState() => new _CameraAppState();
+}
+
+class _CameraAppState extends State<CameraApp> {
+  QRReaderController controller;
+
+  @override
+  void initState() {
+    super.initState();
+    controller = new QRReaderController(cameras[0], ResolutionPreset.medium, (dynamic value){
+        print(value); // the result!
+    // ... do something
+    // wait 3 seconds then start scanning again.
+    new Future.delayed(const Duration(seconds: 3), controller.startScanning);
+    });
+    controller.initialize().then((_) {
+      if (!mounted) {
+        return;
+      }
+      setState(() {});
+      controller.startScanning();
+    });
+  }
+
+  @override
+  void dispose() {
+    controller?.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    if (!controller.value.isInitialized) {
+      return new Container();
+    }
+    return new AspectRatio(
+        aspectRatio:
+        controller.value.aspectRatio,
+        child: new QRReaderPreview(controller));
+  }
+}
+```
+
+For a more elaborate usage example see [here](https://github.com/facundomedica/fast_qr_reader_view/tree/master/fast_qr_reader_view/example).
+
+*Note*: This plugin is still under development, and some APIs might not be available yet.
+[Feedback welcome](https://github.com/facundomedica/fast_qr_reader_view/issues) and
+[Pull Requests](https://github.com/facundomedica/fast_qr_reader_view/pulls) are most welcome!
