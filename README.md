@@ -94,7 +94,7 @@ class _CameraAppState extends State<CameraApp> {
 }
 ```
 
-For a more elaborate usage example see [here](https://github.com/facundomedica/fast_qr_reader_view/tree/master/fast_qr_reader_view/example).
+For a more elaborate usage example see [here](https://github.com/facundomedica/fast_qr_reader_view/tree/master/example).
 
 *Note*: This plugin is still under development, and some APIs might not be available yet.
 [Feedback welcome](https://github.com/facundomedica/fast_qr_reader_view/issues) and
