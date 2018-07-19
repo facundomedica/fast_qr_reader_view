@@ -1,0 +1,135 @@
+{
+  "project_info": {
+    "project_number": "576745423347",
+    "firebase_url": "https://test-3cb3e.firebaseio.com",
+    "project_id": "test-3cb3e",
+    "storage_bucket": "test-3cb3e.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:576745423347:android:4d05d2798e91d589",
+        "android_client_info": {
+          "package_name": "co.apperto.fastqrreaderviewexample"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "576745423347-duro38je125i43v59quhb34jsrme9rrm.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyClIaHEfBJPoOic_hRlavmsh21T3WwsaF4"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 1,
+          "other_platform_oauth_client": []
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:576745423347:android:3a8571d208d8208b",
+        "android_client_info": {
+          "package_name": "com.apperto.firebase.samples.apps.mlkit"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "576745423347-duro38je125i43v59quhb34jsrme9rrm.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyClIaHEfBJPoOic_hRlavmsh21T3WwsaF4"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 1,
+          "other_platform_oauth_client": []
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:576745423347:android:a75c70fa9302e644",
+        "android_client_info": {
+          "package_name": "io.apperto.plugins.cameraexample"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "576745423347-duro38je125i43v59quhb34jsrme9rrm.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyClIaHEfBJPoOic_hRlavmsh21T3WwsaF4"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 1,
+          "other_platform_oauth_client": []
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:576745423347:android:3455b927faaf853e",
+        "android_client_info": {
+          "package_name": "io.apperto.plugins.videoplayerexample"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "576745423347-duro38je125i43v59quhb34jsrme9rrm.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyClIaHEfBJPoOic_hRlavmsh21T3WwsaF4"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 1,
+          "other_platform_oauth_client": []
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
