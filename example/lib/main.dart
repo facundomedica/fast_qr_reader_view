@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'dart:async';
 import 'package:fast_qr_reader_view/fast_qr_reader_view.dart';
+import 'dart:ui' as ui;
 
 List<CameraDescription> cameras;
 
@@ -22,18 +23,40 @@ class MyApp extends StatefulWidget {
   _MyAppState createState() => new _MyAppState();
 }
 
-class _MyAppState extends State<MyApp> {
+class _MyAppState extends State<MyApp> with SingleTickerProviderStateMixin {
   QRReaderController controller;
   final GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey<ScaffoldState>();
-
+  AnimationController animationController;
   // String _platformVersion = 'Unknown';
 
   @override
   void initState() {
     super.initState();
+
+    animationController = new AnimationController(
+      vsync: this,
+      duration: new Duration(seconds: 3),
+    );
+
+    animationController.addListener(() {
+      this.setState(() {});
+    });
+    animationController.forward();
+    verticalPosition = Tween<double>(begin: 0.0, end: 300.0).animate(
+        CurvedAnimation(parent: animationController, curve: Curves.linear))
+      ..addStatusListener((state) {
+        if (state == AnimationStatus.completed) {
+          animationController.reverse();
+        } else if (state == AnimationStatus.dismissed) {
+          animationController.forward();
+        }
+      });
+
     // pick the first available camera
     onNewCameraSelected(cameras[0]);
   }
+
+  Animation<double> verticalPosition;
 
   @override
   Widget build(BuildContext context) {
@@ -46,7 +69,8 @@ class _MyAppState extends State<MyApp> {
         floatingActionButton: FloatingActionButton(
           child: new Icon(Icons.check),
           onPressed: () {
-            showInSnackBar("Just proving you can put anything on top of the scanner");
+            showInSnackBar(
+                "Just proving you can put anything on top of the scanner");
           },
         ),
         body: Stack(
@@ -60,15 +84,27 @@ class _MyAppState extends State<MyApp> {
               ),
             ),
             Center(
-              child: SizedBox(
-                height: 250.0,
-                width: 250.0,
-                child: Container(
-                    decoration: BoxDecoration(
-                        border: Border.all(color: Colors.red, width: 2.0)),
-                    child: Text("THIS TEXT SHOULD SAY SOMETHING IMPORTANT, BUT IT'S ONLY PROVING THAT YOU CAN PUT STUFF OVER THE CAMERA PREVIEW! AND YES, THE RED SQUARE IS USELESS. TRY RUNNING THIS IN RELEASE MODE, IS MUCH FASTER!")),
+              child: Stack(
+                children: <Widget>[
+                  SizedBox(
+                    height: 300.0,
+                    width: 300.0,
+                    child: Container(
+                      decoration: BoxDecoration(
+                          border: Border.all(color: Colors.red, width: 2.0)),
+                    ),
+                  ),
+                  Positioned(
+                    top: verticalPosition.value,
+                    child: Container(
+                      width: 300.0,
+                      height: 2.0,
+                      color: Colors.red,
+                    ),
+                  )
+                ],
               ),
-            )
+            ),
           ],
         ),
       ),
