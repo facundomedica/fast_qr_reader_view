@@ -1,6 +1,6 @@
 name: fast_qr_reader_view
-description: A QR reader widget with live preview.
-version: 0.0.2
+description: A QR reader widget with live preview for both iOS and Android. Using native code for detection.
+version: 0.0.3
 author: Facundo Medica <facundo@inmuvi.com>
 homepage: https://github.com/facundomedica/fast_qr_reader_view
 
