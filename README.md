@@ -2,6 +2,10 @@
 
 A Flutter plugin for iOS and Android allowing access to the device cameras to scan QR codes. **Heavily based on [camera](https://pub.dartlang.org/packages/camera)**
 
+![Example gif](https://raw.githubusercontent.com/facundomedica/fast_qr_reader_view/master/example.gif)
+
+
+
 ## Features:
 
 * Display live camera preview in a widget.

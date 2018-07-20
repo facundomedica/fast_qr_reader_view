@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'dart:async';
 import 'package:fast_qr_reader_view/fast_qr_reader_view.dart';
-import 'dart:ui' as ui;
 
 List<CameraDescription> cameras;
 
@@ -27,7 +26,6 @@ class _MyAppState extends State<MyApp> with SingleTickerProviderStateMixin {
   QRReaderController controller;
   final GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey<ScaffoldState>();
   AnimationController animationController;
-  // String _platformVersion = 'Unknown';
 
   @override
   void initState() {
