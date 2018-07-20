@@ -3,6 +3,7 @@
 A Flutter plugin for iOS and Android allowing access to the device cameras to scan QR codes. **Heavily based on [camera](https://pub.dartlang.org/packages/camera)**
 
 <p align="center">
+
 ![Example gif](https://raw.githubusercontent.com/facundomedica/fast_qr_reader_view/master/example.gif)
 
 Red box is a Flutter animation (removable). Low FPS due to GIF.
