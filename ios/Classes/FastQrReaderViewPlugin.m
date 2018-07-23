@@ -34,10 +34,12 @@ AVCaptureMetadataOutputObjectsDelegate>
 @property(strong, nonatomic) AVAssetWriterInputPixelBufferAdaptor *assetWriterPixelBufferAdaptor;
 @property(assign, nonatomic) BOOL isScanning;
 @property(strong, nonatomic) FlutterMethodChannel *channel;
+@property(strong, nonatomic) NSArray *codeFormats;
 
 - (instancetype)initWithCameraName:(NSString *)cameraName
                   resolutionPreset:(NSString *)resolutionPreset
                      methodChannel:(FlutterMethodChannel *)channel
+                       codeFormats:(NSArray *)codeFormats
                              error:(NSError **)error;
 - (void)start;
 - (void)stop;
@@ -47,6 +49,7 @@ AVCaptureMetadataOutputObjectsDelegate>
 - (instancetype)initWithCameraName:(NSString *)cameraName
                   resolutionPreset:(NSString *)resolutionPreset
                      methodChannel:(FlutterMethodChannel *)channel
+                       codeFormats:(NSArray *)codeFormats
                              error:(NSError **)error {
     self = [super init];
     NSAssert(self, @"super init cannot be nil");
@@ -93,6 +96,7 @@ AVCaptureMetadataOutputObjectsDelegate>
 //    _capturePhotoOutput = [AVCapturePhotoOutput new];
 //    [_captureSession addOutput:_capturePhotoOutput];
     self.channel = channel;
+    self.codeFormats = codeFormats;
     
     
     dispatch_queue_t dispatchQueue;
@@ -102,7 +106,30 @@ AVCaptureMetadataOutputObjectsDelegate>
     
     //    NSLog(@"QR Code: %@", [_captureMetadataOutput availableMetadataObjectTypes]);
     
-    [_captureMetadataOutput setMetadataObjectTypes:@[AVMetadataObjectTypeQRCode]];
+    NSDictionary<NSString *, AVMetadataObjectType> *availableFormats = [[NSDictionary alloc] initWithObjectsAndKeys:
+                                      @"code39", AVMetadataObjectTypeCode39Code,
+                                      @"code93", AVMetadataObjectTypeCode93Code,
+                                      @"code128", AVMetadataObjectTypeCode128Code,
+                                      @"ean8", AVMetadataObjectTypeEAN8Code,
+                                      @"ean13", AVMetadataObjectTypeEAN13Code,
+                                      @"itf", AVMetadataObjectTypeEAN13Code,
+                                      @"upce", AVMetadataObjectTypeUPCECode,
+                                      @"aztec", AVMetadataObjectTypeAztecCode,
+                                      @"datamatrix", AVMetadataObjectTypeDataMatrixCode,
+                                      @"pdf417", AVMetadataObjectTypePDF417Code,
+                                      @"qr", AVMetadataObjectTypeQRCode,
+                                      nil];
+    
+    NSMutableArray<AVMetadataObjectType> *reqFormats = [[NSMutableArray alloc] init];
+    
+    for (NSString *f in codeFormats) {
+        if ([availableFormats valueForKey:f] != nil) {
+            [reqFormats addObject:[availableFormats valueForKey:f]];
+        }
+    }
+    
+    
+    [_captureMetadataOutput setMetadataObjectTypes: reqFormats];
     [_captureMetadataOutput setMetadataObjectsDelegate:self queue:dispatchQueue];
     
     return self;
@@ -119,11 +146,11 @@ AVCaptureMetadataOutputObjectsDelegate>
 - (void)captureOutput:(AVCaptureOutput *)output didOutputMetadataObjects:(NSArray<__kindof AVMetadataObject *> *)metadataObjects fromConnection:(AVCaptureConnection *)connection {
     if (metadataObjects != nil && [metadataObjects count] > 0) {
         AVMetadataMachineReadableCodeObject *metadataObj = [metadataObjects objectAtIndex:0];
-        if ([[metadataObj type] isEqualToString:AVMetadataObjectTypeQRCode]) {
+//        if ([[metadataObj type] isEqualToString:AVMetadataObjectTypeQRCode]) {
             if (_isScanning) {
                 [self performSelectorOnMainThread:@selector(stopScanningWithResult:) withObject:[metadataObj stringValue] waitUntilDone:NO];
             }
-        }
+//        }
     }
 }
 
@@ -277,10 +304,12 @@ didOutputSampleBuffer:(CMSampleBufferRef)sampleBuffer
     } else if ([@"initialize" isEqualToString:call.method]) {
         NSString *cameraName = call.arguments[@"cameraName"];
         NSString *resolutionPreset = call.arguments[@"resolutionPreset"];
+        NSArray *formats = call.arguments[@"codeFormats"];
         NSError *error;
         FLTCam *cam = [[FLTCam alloc] initWithCameraName:cameraName
                                         resolutionPreset:resolutionPreset
                                            methodChannel:_channel
+                                             codeFormats: formats
                                                    error:&error];
         if (error) {
             result([error flutterError]);

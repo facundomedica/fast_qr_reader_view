@@ -10,6 +10,38 @@ enum CameraLensDirection { front, back, external }
 
 enum ResolutionPreset { low, medium, high }
 
+enum CodeFormat {
+  codabar,
+  code39,
+  code93,
+  code128,
+  ean8,
+  ean13,
+  itf,
+  upca,
+  upce,
+  aztec,
+  datamatrix,
+  pdf417,
+  qr
+}
+
+var _availableFormats = {
+  CodeFormat.codabar: 'codabar', // Android only
+  CodeFormat.code39: 'code39',
+  CodeFormat.code93: 'code93',
+  CodeFormat.code128: 'code128',
+  CodeFormat.ean8: 'ean8',
+  CodeFormat.ean13: 'ean13',
+  CodeFormat.itf: 'itf', // itf-14 on iOS, should be changed to Interleaved2of5?
+  CodeFormat.upca: 'upca', // Android only
+  CodeFormat.upce: 'upce',
+  CodeFormat.aztec: 'aztec',
+  CodeFormat.datamatrix: 'datamatrix',
+  CodeFormat.pdf417: 'pdf417',
+  CodeFormat.qr: 'qr',
+};
+
 /// Returns the resolution preset as a String.
 String serializeResolutionPreset(ResolutionPreset resolutionPreset) {
   switch (resolutionPreset) {
@@ -21,6 +53,19 @@ String serializeResolutionPreset(ResolutionPreset resolutionPreset) {
       return 'low';
   }
   throw new ArgumentError('Unknown ResolutionPreset value');
+}
+
+List<String> serializeCodeFormatsList(List<CodeFormat> formats) {
+  List<String> list = [];
+
+  for (var i = 0; i < formats.length; i++) {
+    if (_availableFormats[formats[i]] != null) {
+      //  this format exists in my list of available formats
+      list.add(_availableFormats[formats[i]]);
+    }
+  }
+
+  return list;
 }
 
 CameraLensDirection _parseCameraLensDirection(String string) {
@@ -172,13 +217,15 @@ class QRReaderController extends ValueNotifier<QRReaderValue> {
   final CameraDescription description;
   final ResolutionPreset resolutionPreset;
   final Function onCodeRead;
+  final List<CodeFormat> codeFormats;
 
   int _textureId;
   bool _isDisposed = false;
   StreamSubscription<dynamic> _eventSubscription;
   Completer<Null> _creatingCompleter;
 
-  QRReaderController(this.description, this.resolutionPreset, this.onCodeRead)
+  QRReaderController(this.description, this.resolutionPreset, this.codeFormats,
+      this.onCodeRead)
       : super(const QRReaderValue.uninitialized());
 
   /// Initializes the camera on the device.
@@ -196,6 +243,7 @@ class QRReaderController extends ValueNotifier<QRReaderValue> {
         <String, dynamic>{
           'cameraName': description.name,
           'resolutionPreset': serializeResolutionPreset(resolutionPreset),
+          'codeFormats': serializeCodeFormatsList(codeFormats),
         },
       );
       _textureId = reply['textureId'];

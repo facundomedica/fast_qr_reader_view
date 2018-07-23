@@ -140,7 +140,7 @@ class _MyAppState extends State<MyApp> with SingleTickerProviderStateMixin {
       await controller.dispose();
     }
     controller = new QRReaderController(
-        cameraDescription, ResolutionPreset.high, onCodeRead);
+        cameraDescription, ResolutionPreset.high, [CodeFormat.qr], onCodeRead);
 
     // If the controller is updated then update the UI.
     controller.addListener(() {

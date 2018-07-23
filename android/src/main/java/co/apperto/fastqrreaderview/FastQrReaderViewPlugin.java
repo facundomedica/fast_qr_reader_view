@@ -30,6 +30,7 @@ import android.util.Size;
 import android.util.SparseIntArray;
 import android.view.Surface;
 
+import com.google.android.gms.common.util.ArrayUtils;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.ml.vision.FirebaseVision;
@@ -201,10 +202,12 @@ public class FastQrReaderViewPlugin implements MethodCallHandler {
             case "initialize": {
                 String cameraName = call.argument("cameraName");
                 String resolutionPreset = call.argument("resolutionPreset");
+                ArrayList<String> codeFormats = call.argument("codeFormats");
+
                 if (camera != null) {
                     camera.close();
                 }
-                camera = new QrReader(cameraName, resolutionPreset, result);
+                camera = new QrReader(cameraName, resolutionPreset, codeFormats, result);
                 break;
             }
             case "startScanning":
@@ -332,9 +335,39 @@ public class FastQrReaderViewPlugin implements MethodCallHandler {
 
         private boolean scanning;
 
-        QrReader(final String cameraName, final String resolutionPreset, @NonNull final Result result) {
+        QrReader(final String cameraName, final String resolutionPreset, final ArrayList<String> formats, @NonNull final Result result) {
+            // AVAILABLE FORMATS:
+            // enum CodeFormat { codabar, code39, code93, code128, ean8, ean13, itf, upca, upce, aztec, datamatrix, pdf417, qr }
+
+            Map<String, Integer> map = new HashMap<>();
+            map.put("codabar", FirebaseVisionBarcode.FORMAT_CODABAR);
+            map.put("code39", FirebaseVisionBarcode.FORMAT_CODE_39);
+            map.put("code93", FirebaseVisionBarcode.FORMAT_CODE_93);
+            map.put("code128", FirebaseVisionBarcode.FORMAT_CODE_128);
+            map.put("ean8", FirebaseVisionBarcode.FORMAT_EAN_8);
+            map.put("ean13", FirebaseVisionBarcode.FORMAT_EAN_13);
+            map.put("itf", FirebaseVisionBarcode.FORMAT_ITF);
+            map.put("upca", FirebaseVisionBarcode.FORMAT_UPC_A);
+            map.put("upce", FirebaseVisionBarcode.FORMAT_UPC_E);
+            map.put("aztec", FirebaseVisionBarcode.FORMAT_AZTEC);
+            map.put("datamatrix", FirebaseVisionBarcode.FORMAT_DATA_MATRIX);
+            map.put("pdf417", FirebaseVisionBarcode.FORMAT_PDF417);
+            map.put("qr", FirebaseVisionBarcode.FORMAT_QR_CODE);
+
+
+            ArrayList<Integer> reqFormats = new ArrayList<>();
+
+            for (String f :
+                    formats) {
+                if (map.get(f) != null) {
+                    reqFormats.add(map.get(f));
+                }
+            }
+
+            int[] additionalFormats = Arrays.copyOfRange(ArrayUtils.toPrimitiveArray(reqFormats), 1, reqFormats.size());
             this.visionOptions = new FirebaseVisionBarcodeDetectorOptions.Builder()
-                    .setBarcodeFormats(FirebaseVisionBarcode.FORMAT_QR_CODE)
+                    // setBarcodeFormats is quite weird. I have to do all of these just to pass a bunch of ints
+                    .setBarcodeFormats(ArrayUtils.toPrimitiveArray(reqFormats)[0], additionalFormats)
                     .build();
 
             this.codeDetector = FirebaseVision.getInstance().getVisionBarcodeDetector(visionOptions);

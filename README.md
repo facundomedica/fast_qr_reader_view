@@ -1,6 +1,6 @@
 # Fast QR Reader View Plugin
 
-A Flutter plugin for iOS and Android allowing access to the device cameras to scan QR codes. **Heavily based on [camera](https://pub.dartlang.org/packages/camera)**
+A Flutter plugin for iOS and Android allowing access to the device cameras to scan multiple type of codes (QR, PDF417, CODE39, etc). **Heavily based on [camera](https://pub.dartlang.org/packages/camera)**
 
 <p align="center">
 
@@ -13,7 +13,7 @@ Red box is a Flutter animation (removable). Low FPS due to GIF.
 ## Features:
 
 * Display live camera preview in a widget.
-* Uses native AVFoundation QR code detection in iOS
+* Uses native AVFoundation code detection in iOS
 * Uses ML Kit in Android
 
 ## Installation
@@ -68,7 +68,7 @@ class _CameraAppState extends State<CameraApp> {
   @override
   void initState() {
     super.initState();
-    controller = new QRReaderController(cameras[0], ResolutionPreset.medium, (dynamic value){
+    controller = new QRReaderController(cameras[0], ResolutionPreset.medium, [CodeFormat.qr], (dynamic value){
         print(value); // the result!
     // ... do something
     // wait 3 seconds then start scanning again.
