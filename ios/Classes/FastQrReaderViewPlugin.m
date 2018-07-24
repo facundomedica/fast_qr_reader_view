@@ -107,18 +107,18 @@ AVCaptureMetadataOutputObjectsDelegate>
     //    NSLog(@"QR Code: %@", [_captureMetadataOutput availableMetadataObjectTypes]);
     
     NSDictionary<NSString *, AVMetadataObjectType> *availableFormats = [[NSDictionary alloc] initWithObjectsAndKeys:
-                                      @"code39", AVMetadataObjectTypeCode39Code,
-                                      @"code93", AVMetadataObjectTypeCode93Code,
-                                      @"code128", AVMetadataObjectTypeCode128Code,
-                                      @"ean8", AVMetadataObjectTypeEAN8Code,
-                                      @"ean13", AVMetadataObjectTypeEAN13Code,
-                                      @"itf", AVMetadataObjectTypeEAN13Code,
-                                      @"upce", AVMetadataObjectTypeUPCECode,
-                                      @"aztec", AVMetadataObjectTypeAztecCode,
-                                      @"datamatrix", AVMetadataObjectTypeDataMatrixCode,
-                                      @"pdf417", AVMetadataObjectTypePDF417Code,
-                                      @"qr", AVMetadataObjectTypeQRCode,
-                                      nil];
+                                       AVMetadataObjectTypeCode39Code,@"code39",
+                                       AVMetadataObjectTypeCode93Code,@"code93",
+                                       AVMetadataObjectTypeCode128Code, @"code128",
+                                       AVMetadataObjectTypeEAN8Code,  @"ean8",
+                                       AVMetadataObjectTypeEAN13Code,@"ean13",
+                                       AVMetadataObjectTypeEAN13Code,@"itf",
+                                       AVMetadataObjectTypeUPCECode,@"upce",
+                                       AVMetadataObjectTypeAztecCode,@"aztec",
+                                       AVMetadataObjectTypeDataMatrixCode,@"datamatrix",
+                                       AVMetadataObjectTypePDF417Code, @"pdf417",
+                                       AVMetadataObjectTypeQRCode, @"qr",
+                                       nil];
     
     NSMutableArray<AVMetadataObjectType> *reqFormats = [[NSMutableArray alloc] init];
     
