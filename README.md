@@ -1,5 +1,7 @@
 # Fast QR Reader View Plugin
 
+**[See in pub](https://pub.dartlang.org/packages/fast_qr_reader_view)**
+
 A Flutter plugin for iOS and Android allowing access to the device cameras to scan multiple type of codes (QR, PDF417, CODE39, etc). **Heavily based on [camera](https://pub.dartlang.org/packages/camera)**
 
 
