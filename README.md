@@ -5,6 +5,7 @@ A Flutter plugin for iOS and Android allowing access to the device cameras to sc
 
 <p align="center">
   <img src="https://raw.githubusercontent.com/facundomedica/fast_qr_reader_view/master/example.gif">
+  <img src="https://raw.githubusercontent.com/facundomedica/fast_qr_reader_view/master/example2.gif">
 </p>
 
 *Red box is a Flutter animation (removable).* *Low FPS due to GIF*
