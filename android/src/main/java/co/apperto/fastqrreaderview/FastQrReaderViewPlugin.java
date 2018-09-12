@@ -44,6 +44,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -84,8 +85,13 @@ public class FastQrReaderViewPlugin implements MethodCallHandler {
     private boolean requestingPermission;
     private static MethodChannel channel;
 
+    // Whether we should ignore process(). This is usually caused by feeding input data faster than
+    // the model can handle.
+    private final AtomicBoolean shouldThrottle = new AtomicBoolean(false);
+
 
     private FastQrReaderViewPlugin(Registrar registrar, FlutterView view, Activity activity) {
+
         this.registrar = registrar;
         this.view = view;
         this.activity = activity;
@@ -258,8 +264,14 @@ public class FastQrReaderViewPlugin implements MethodCallHandler {
                 new ImageReader.OnImageAvailableListener() {
                     @Override
                     public void onImageAvailable(ImageReader reader) {
+                        if (shouldThrottle.get()) {
+                            return;
+                        }
+
                         if (camera.scanning) {
                             try (Image image = reader.acquireLatestImage()) {
+                                shouldThrottle.set(true);
+
                                 FirebaseVisionImage test = FirebaseVisionImage.fromByteBuffer(image.getPlanes()[0].getBuffer(), new FirebaseVisionImageMetadata.Builder()
                                         .setFormat(FirebaseVisionImageMetadata.IMAGE_FORMAT_NV21)
                                         .setHeight(image.getHeight())
@@ -271,6 +283,7 @@ public class FastQrReaderViewPlugin implements MethodCallHandler {
                                 camera.codeDetector.detectInImage(test).addOnSuccessListener(new OnSuccessListener<List<FirebaseVisionBarcode>>() {
                                     @Override
                                     public void onSuccess(List<FirebaseVisionBarcode> firebaseVisionBarcodes) {
+                                        shouldThrottle.set(false);
                                         if (camera.scanning) {
                                             if (firebaseVisionBarcodes.size() > 0) {
                                                 Log.w(TAG, "onSuccess: " + firebaseVisionBarcodes.get(0).getRawValue());
@@ -285,10 +298,12 @@ public class FastQrReaderViewPlugin implements MethodCallHandler {
                                 }).addOnFailureListener(new OnFailureListener() {
                                     @Override
                                     public void onFailure(@NonNull Exception e) {
+                                        shouldThrottle.set(false);
 //                                            Log.d("test", "asdasd");
                                         e.printStackTrace();
                                     }
                                 });
+
                             } catch (Exception e) {
 
                                 e.printStackTrace();
