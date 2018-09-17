@@ -264,12 +264,14 @@ public class FastQrReaderViewPlugin implements MethodCallHandler {
                 new ImageReader.OnImageAvailableListener() {
                     @Override
                     public void onImageAvailable(ImageReader reader) {
-                        if (shouldThrottle.get()) {
-                            return;
-                        }
 
                         if (camera.scanning) {
                             try (Image image = reader.acquireLatestImage()) {
+
+                                if (shouldThrottle.get()) {
+                                    image.close();
+                                    return;
+                                }
                                 shouldThrottle.set(true);
 
                                 FirebaseVisionImage test = FirebaseVisionImage.fromByteBuffer(image.getPlanes()[0].getBuffer(), new FirebaseVisionImageMetadata.Builder()
@@ -283,7 +285,6 @@ public class FastQrReaderViewPlugin implements MethodCallHandler {
                                 camera.codeDetector.detectInImage(test).addOnSuccessListener(new OnSuccessListener<List<FirebaseVisionBarcode>>() {
                                     @Override
                                     public void onSuccess(List<FirebaseVisionBarcode> firebaseVisionBarcodes) {
-                                        shouldThrottle.set(false);
                                         if (camera.scanning) {
                                             if (firebaseVisionBarcodes.size() > 0) {
                                                 Log.w(TAG, "onSuccess: " + firebaseVisionBarcodes.get(0).getRawValue());
@@ -294,6 +295,7 @@ public class FastQrReaderViewPlugin implements MethodCallHandler {
                                                 stopScanning();
                                             }
                                         }
+                                        shouldThrottle.set(false);
                                     }
                                 }).addOnFailureListener(new OnFailureListener() {
                                     @Override
@@ -305,14 +307,19 @@ public class FastQrReaderViewPlugin implements MethodCallHandler {
                                 });
 
                             } catch (Exception e) {
-
+                                shouldThrottle.set(false);
                                 e.printStackTrace();
                             }
                         }
                     }
                 },
                 camera.codeDetectionHandler);
-        camera.imageReader.acquireLatestImage().close();
+
+        try (Image image = camera.imageReader.acquireLatestImage()) {
+            image.close();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     void stopScanning(@NonNull Result result) {
@@ -419,6 +426,7 @@ public class FastQrReaderViewPlugin implements MethodCallHandler {
                 //noinspection ConstantConditions
                 sensorOrientation = characteristics.get(CameraCharacteristics.SENSOR_ORIENTATION);
                 //noinspection ConstantConditions
+
                 isFrontFacing =
                         characteristics.get(CameraCharacteristics.LENS_FACING)
                                 == CameraMetadata.LENS_FACING_FRONT;
