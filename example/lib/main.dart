@@ -131,16 +131,16 @@ class _MyAppState extends State<MyApp> with SingleTickerProviderStateMixin {
   void onCodeRead(dynamic value) {
     showInSnackBar(value.toString());
     // ... do something
-    // wait 3 seconds then start scanning again.
-    new Future.delayed(const Duration(seconds: 3), controller.startScanning);
+    // wait 5 seconds then start scanning again.
+    new Future.delayed(const Duration(seconds: 5), controller.startScanning);
   }
 
   void onNewCameraSelected(CameraDescription cameraDescription) async {
     if (controller != null) {
       await controller.dispose();
     }
-    controller = new QRReaderController(
-        cameraDescription, ResolutionPreset.low, [CodeFormat.qr, CodeFormat.pdf417], onCodeRead);
+    controller = new QRReaderController(cameraDescription, ResolutionPreset.low,
+        [CodeFormat.qr, CodeFormat.pdf417], onCodeRead);
 
     // If the controller is updated then update the UI.
     controller.addListener(() {
