@@ -374,11 +374,9 @@ public class FastQrReaderViewPlugin implements MethodCallHandler {
                 try {
                     if (preview == null) {
                         Log.d(TAG, "resume: Preview is null");
+                    } else  {
+                        preview.start(cameraSource);
                     }
-//                    if (graphicOverlay == null) {
-//                        Log.d(TAG, "resume: graphOverlay is null");
-//                    }
-                    preview.start(cameraSource);
                 } catch (IOException e) {
                     Log.e(TAG, "Unable to start camera source.", e);
                     cameraSource.release();
