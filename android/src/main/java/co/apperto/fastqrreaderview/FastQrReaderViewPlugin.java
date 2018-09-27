@@ -6,7 +6,6 @@ import android.app.Activity;
 import android.app.Application;
 import android.content.Context;
 import android.content.pm.PackageManager;
-import android.content.res.Configuration;
 import android.graphics.ImageFormat;
 import android.graphics.SurfaceTexture;
 import android.hardware.camera2.CameraAccessException;
@@ -33,7 +32,6 @@ import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.atomic.AtomicBoolean;
 
 import co.apperto.fastqrreaderview.common.CameraSource;
 import co.apperto.fastqrreaderview.common.CameraSourcePreview;
@@ -77,7 +75,7 @@ public class FastQrReaderViewPlugin implements MethodCallHandler {
 
     // Whether we should ignore process(). This is usually caused by feeding input data faster than
     // the model can handle.
-    private final AtomicBoolean shouldThrottle = new AtomicBoolean(false);
+//    private final AtomicBoolean shouldThrottle = new AtomicBoolean(false);
 
 
     private FastQrReaderViewPlugin(Registrar registrar, FlutterView view, Activity activity) {
@@ -122,10 +120,6 @@ public class FastQrReaderViewPlugin implements MethodCallHandler {
 
                                         }
                                     }
-
-//                                    if (camera != null) {
-////                                        camera.close();
-//                                    }
                                 }
                             }
 
@@ -133,7 +127,13 @@ public class FastQrReaderViewPlugin implements MethodCallHandler {
                             public void onActivityStopped(Activity activity) {
                                 if (activity == FastQrReaderViewPlugin.this.activity) {
                                     if (camera != null) {
-//                                        camera.close();
+                                        if (camera.preview != null) {
+                                            camera.preview.stop();
+                                        }
+
+                                        if (camera.cameraSource != null) {
+                                            camera.cameraSource.release();
+                                        }
                                     }
                                 }
                             }
@@ -144,9 +144,7 @@ public class FastQrReaderViewPlugin implements MethodCallHandler {
 
                             @Override
                             public void onActivityDestroyed(Activity activity) {
-                                if (camera.cameraSource != null) {
-                                    camera.cameraSource.release();
-                                }
+
                             }
                         });
     }
@@ -170,7 +168,7 @@ public class FastQrReaderViewPlugin implements MethodCallHandler {
         switch (call.method) {
             case "init":
                 if (camera != null) {
-//                    camera.close();
+                    camera.close();
                 }
                 result.success(null);
                 break;
@@ -211,7 +209,7 @@ public class FastQrReaderViewPlugin implements MethodCallHandler {
                 ArrayList<String> codeFormats = call.argument("codeFormats");
 
                 if (camera != null) {
-//                    camera.close();
+                    camera.close();
                 }
                 camera = new QrReader(cameraName, resolutionPreset, codeFormats, result);
                 break;
@@ -374,7 +372,7 @@ public class FastQrReaderViewPlugin implements MethodCallHandler {
                 try {
                     if (preview == null) {
                         Log.d(TAG, "resume: Preview is null");
-                    } else  {
+                    } else {
                         preview.start(cameraSource);
                     }
                 } catch (IOException e) {
@@ -764,9 +762,31 @@ public class FastQrReaderViewPlugin implements MethodCallHandler {
 //            }
 //        }
 
+        private void close() {
+            if (preview != null) {
+                preview.stop();
+            }
+
+            if (cameraSource != null) {
+                cameraSource.release();
+            }
+
+            camera = null;
+
+        }
+
         private void dispose() {
 //            close();
             textureEntry.release();
+//            if (camera != null) {
+            if (preview != null) {
+                preview.stop();
+            }
+
+            if (cameraSource != null) {
+                cameraSource.release();
+            }
+//            }
         }
     }
 }
