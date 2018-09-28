@@ -13,3 +13,7 @@
 ## 0.1.3
 
 - Fix crash in some Android devices when closing the app
+
+## 0.1.4
+
+- Fix crash in some Android devices when closing the app (2nd attempt)

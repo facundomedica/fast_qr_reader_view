@@ -1,6 +1,6 @@
 name: fast_qr_reader_view
 description: A multi-code reader widget with live preview for both iOS and Android. Using native code for detection, scans QR, PDF417 and CODE39 among others.
-version: 0.1.3
+version: 0.1.4
 author: Facundo Medica <facundolmedica@gmail.com>
 homepage: https://github.com/facundomedica/fast_qr_reader_view
 
