@@ -73,9 +73,6 @@ AVCaptureMetadataOutputObjectsDelegate>
         *error = localError;
         return nil;
     }
-    CMVideoDimensions dimensions =
-    CMVideoFormatDescriptionGetDimensions([[_captureDevice activeFormat] formatDescription]);
-    _previewSize = CGSizeMake(dimensions.width, dimensions.height);
     
     _captureVideoOutput = [AVCaptureVideoDataOutput new];
     _captureVideoOutput.videoSettings =
@@ -93,6 +90,8 @@ AVCaptureMetadataOutputObjectsDelegate>
     [_captureSession addInputWithNoConnections:_captureVideoInput];
     [_captureSession addOutputWithNoConnections:_captureVideoOutput];
     [_captureSession addConnection:connection];
+    CMVideoDimensions dimensions = CMVideoFormatDescriptionGetDimensions([[_captureDevice activeFormat] formatDescription]);
+    _previewSize = CGSizeMake(dimensions.width, dimensions.height);
 //    _capturePhotoOutput = [AVCapturePhotoOutput new];
 //    [_captureSession addOutput:_capturePhotoOutput];
     self.channel = channel;
@@ -275,11 +274,16 @@ didOutputSampleBuffer:(CMSampleBufferRef)sampleBuffer
         }
         result(nil);
     } else if ([@"availableCameras" isEqualToString:call.method]) {
-        AVCaptureDeviceDiscoverySession *discoverySession = [AVCaptureDeviceDiscoverySession
-                                                             discoverySessionWithDeviceTypes:@[ AVCaptureDeviceTypeBuiltInWideAngleCamera ]
-                                                             mediaType:AVMediaTypeVideo
-                                                             position:AVCaptureDevicePositionUnspecified];
-        NSArray<AVCaptureDevice *> *devices = discoverySession.devices;
+        NSArray<AVCaptureDevice *> *devices;
+        if (@available(iOS 10.0, *)) {
+            AVCaptureDeviceDiscoverySession *discoverySession = [AVCaptureDeviceDiscoverySession
+                                                                 discoverySessionWithDeviceTypes:@[ AVCaptureDeviceTypeBuiltInWideAngleCamera ]
+                                                                 mediaType:AVMediaTypeVideo
+                                                                 position:AVCaptureDevicePositionUnspecified];
+            devices = discoverySession.devices;
+        } else {
+            devices = [AVCaptureDevice devicesWithMediaType:AVMediaTypeVideo];
+        }
         NSMutableArray<NSDictionary<NSString *, NSObject *> *> *reply =
         [[NSMutableArray alloc] initWithCapacity:devices.count];
         for (AVCaptureDevice *device in devices) {

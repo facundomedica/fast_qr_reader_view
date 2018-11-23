@@ -51,7 +51,7 @@ class _MyAppState extends State<MyApp> with SingleTickerProviderStateMixin {
       });
 
     // pick the first available camera
-    onNewCameraSelected(cameras[0]);
+    onNewCameraSelected(cameras[1]);
   }
 
   Animation<double> verticalPosition;
@@ -72,11 +72,13 @@ class _MyAppState extends State<MyApp> with SingleTickerProviderStateMixin {
           },
         ),
         body: Stack(
+          fit: StackFit.passthrough,
           children: <Widget>[
-            new Container(
-              child: new Padding(
-                padding: const EdgeInsets.all(0.0),
-                child: new Center(
+            Center(
+              child: new Container(
+                width: 450.0,
+                child: new Padding(
+                  padding: const EdgeInsets.all(0.0),
                   child: _cameraPreviewWidget(),
                 ),
               ),
@@ -139,7 +141,7 @@ class _MyAppState extends State<MyApp> with SingleTickerProviderStateMixin {
     if (controller != null) {
       await controller.dispose();
     }
-    controller = new QRReaderController(cameraDescription, ResolutionPreset.low,
+    controller = new QRReaderController(cameraDescription, ResolutionPreset.medium,
         [CodeFormat.qr, CodeFormat.pdf417], onCodeRead);
 
     // If the controller is updated then update the UI.
