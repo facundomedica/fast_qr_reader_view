@@ -26,9 +26,10 @@ import android.hardware.camera2.CameraMetadata;
 import android.support.annotation.Nullable;
 import android.support.annotation.RequiresPermission;
 import android.util.Log;
-import android.util.Size;
 import android.view.Surface;
 import android.view.WindowManager;
+
+import com.google.android.gms.common.images.Size;
 
 import java.io.IOException;
 import java.lang.Thread.State;
