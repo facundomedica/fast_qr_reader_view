@@ -8,7 +8,7 @@ final MethodChannel _channel = const MethodChannel('fast_qr_reader_view')
 
 enum CameraLensDirection { front, back, external }
 
-enum ResolutionPreset { low, medium, high }
+enum ResolutionPreset { low, medium, high, photo }
 
 enum CodeFormat {
   codabar,
@@ -45,6 +45,8 @@ var _availableFormats = {
 /// Returns the resolution preset as a String.
 String serializeResolutionPreset(ResolutionPreset resolutionPreset) {
   switch (resolutionPreset) {
+    case ResolutionPreset.photo:
+      return 'photo';
     case ResolutionPreset.high:
       return 'high';
     case ResolutionPreset.medium:

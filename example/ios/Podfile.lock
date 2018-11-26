@@ -9,9 +9,9 @@ DEPENDENCIES:
 
 EXTERNAL SOURCES:
   fast_qr_reader_view:
-    :path: .symlinks/plugins/fast_qr_reader_view/ios
+    :path: ".symlinks/plugins/fast_qr_reader_view/ios"
   Flutter:
-    :path: .symlinks/flutter/ios
+    :path: ".symlinks/flutter/ios"
 
 SPEC CHECKSUMS:
   fast_qr_reader_view: 8e7946be31e3d99b3355924e1f0ec1eca6e01fc9
@@ -19,4 +19,4 @@ SPEC CHECKSUMS:
 
 PODFILE CHECKSUM: 1e5af4103afd21ca5ead147d7b81d06f494f51a2
 
-COCOAPODS: 1.4.0
+COCOAPODS: 1.5.3

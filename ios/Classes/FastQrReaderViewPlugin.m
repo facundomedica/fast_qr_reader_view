@@ -55,7 +55,9 @@ AVCaptureMetadataOutputObjectsDelegate>
     NSAssert(self, @"super init cannot be nil");
     _captureSession = [[AVCaptureSession alloc] init];
     AVCaptureSessionPreset preset;
-    if ([resolutionPreset isEqualToString:@"high"]) {
+    if ([resolutionPreset isEqualToString:@"photo"]) {
+        preset = AVCaptureSessionPresetPhoto;
+    } else if ([resolutionPreset isEqualToString:@"high"]) {
         preset = AVCaptureSessionPresetHigh;
     } else if ([resolutionPreset isEqualToString:@"medium"]) {
         preset = AVCaptureSessionPresetMedium;
