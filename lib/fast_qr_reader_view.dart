@@ -6,7 +6,7 @@ import 'package:flutter/widgets.dart';
 final MethodChannel _channel = const MethodChannel('fast_qr_reader_view')
   ..invokeMethod('init');
 
-enum CameraLensDirection { front, back, external }
+enum CameraLensDirection { back, front, external }
 
 enum ResolutionPreset { low, medium, high, photo }
 

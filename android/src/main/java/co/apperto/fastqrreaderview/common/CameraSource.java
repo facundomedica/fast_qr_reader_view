@@ -22,14 +22,13 @@ import android.graphics.ImageFormat;
 import android.graphics.SurfaceTexture;
 import android.hardware.Camera;
 import android.hardware.Camera.CameraInfo;
+import android.hardware.camera2.CameraMetadata;
 import android.support.annotation.Nullable;
 import android.support.annotation.RequiresPermission;
 import android.util.Log;
+import android.util.Size;
 import android.view.Surface;
-import android.view.SurfaceHolder;
 import android.view.WindowManager;
-
-import com.google.android.gms.common.images.Size;
 
 import java.io.IOException;
 import java.lang.Thread.State;
@@ -46,11 +45,11 @@ import java.util.Map;
  */
 @SuppressLint("MissingPermission")
 public class CameraSource {
-  @SuppressLint("InlinedApi")
-  public static final int CAMERA_FACING_BACK = CameraInfo.CAMERA_FACING_BACK;
+   @SuppressLint("InlinedApi")
+  public static final int CAMERA_FACING_BACK = CameraMetadata.LENS_FACING_BACK;
 
   @SuppressLint("InlinedApi")
-  public static final int CAMERA_FACING_FRONT = CameraInfo.CAMERA_FACING_FRONT;
+  public static final int CAMERA_FACING_FRONT = CameraMetadata.LENS_FACING_FRONT;
 
   private static final String TAG = "MIDemoApp:CameraSource";
 
