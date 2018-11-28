@@ -569,7 +569,7 @@ public class FastQrReaderViewPlugin implements MethodCallHandler {
           result.error("cameraPermission", "Camera permission not granted", null);
       } else {
 //                try {
-        cameraSource = new CameraSource(activity);
+        cameraSource = new CameraSource(activity, isFrontFacing);
         barcodeScanningProcessor = new BarcodeScanningProcessor(reqFormats);
         barcodeScanningProcessor.callback = new OnCodeScanned() {
           @Override

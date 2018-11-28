@@ -47,10 +47,10 @@ import java.util.Map;
 @SuppressLint("MissingPermission")
 public class CameraSource {
    @SuppressLint("InlinedApi")
-  public static final int CAMERA_FACING_BACK = CameraMetadata.LENS_FACING_BACK;
+  public static final int CAMERA_FACING_BACK = CameraInfo.CAMERA_FACING_BACK;
 
   @SuppressLint("InlinedApi")
-  public static final int CAMERA_FACING_FRONT = CameraMetadata.LENS_FACING_FRONT;
+  public static final int CAMERA_FACING_FRONT = CameraInfo.CAMERA_FACING_FRONT;
 
   private static final String TAG = "MIDemoApp:CameraSource";
 
@@ -125,10 +125,11 @@ public class CameraSource {
   private final Map<byte[], ByteBuffer> bytesToByteBuffer = new IdentityHashMap<>();
 
 //  public CameraSource(Activity activity, GraphicOverlay overlay) {
-  public CameraSource(Activity activity) {
+  public CameraSource(Activity activity, boolean isFrontFacing) {
     this.activity = activity;
 //    graphicOverlay = overlay;
 //    graphicOverlay.clear();
+    facing = isFrontFacing ? CameraInfo.CAMERA_FACING_FRONT : CameraInfo.CAMERA_FACING_BACK;
     processingRunnable = new FrameProcessingRunnable();
   }
 
