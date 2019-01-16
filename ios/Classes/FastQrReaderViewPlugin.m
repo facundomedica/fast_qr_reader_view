@@ -14,7 +14,7 @@
 }
 @end
 
-@interface FLTCam : NSObject<FlutterTexture, AVCaptureVideoDataOutputSampleBufferDelegate, FlutterStreamHandler,
+@interface FMCam : NSObject<FlutterTexture, AVCaptureVideoDataOutputSampleBufferDelegate, FlutterStreamHandler,
 AVCaptureMetadataOutputObjectsDelegate>
 @property(readonly, nonatomic) int64_t textureId;
 @property(nonatomic, copy) void (^onFrameAvailable)(void);
@@ -45,7 +45,7 @@ AVCaptureMetadataOutputObjectsDelegate>
 - (void)stop;
 @end
 
-@implementation FLTCam
+@implementation FMCam
 - (instancetype)initWithCameraName:(NSString *)cameraName
                   resolutionPreset:(NSString *)resolutionPreset
                      methodChannel:(FlutterMethodChannel *)channel
@@ -242,7 +242,7 @@ didOutputSampleBuffer:(CMSampleBufferRef)sampleBuffer
 @interface FastQrReaderViewPlugin ()
 @property(readonly, nonatomic) NSObject<FlutterTextureRegistry> *registry;
 @property(readonly, nonatomic) NSObject<FlutterBinaryMessenger> *messenger;
-@property(readonly, nonatomic) FLTCam *camera;
+@property(readonly, nonatomic) FMCam *camera;
 @property(readonly, nonatomic) FlutterMethodChannel *channel;
 @end
 
@@ -306,7 +306,7 @@ didOutputSampleBuffer:(CMSampleBufferRef)sampleBuffer
         NSString *resolutionPreset = call.arguments[@"resolutionPreset"];
         NSArray *formats = call.arguments[@"codeFormats"];
         NSError *error;
-        FLTCam *cam = [[FLTCam alloc] initWithCameraName:cameraName
+        FMCam *cam = [[FMCam alloc] initWithCameraName:cameraName
                                         resolutionPreset:resolutionPreset
                                            methodChannel:_channel
                                              codeFormats: formats
