@@ -338,6 +338,9 @@ didOutputSampleBuffer:(CMSampleBufferRef)sampleBuffer
                      });
             [cam start];
         }
+    } else if ([@"checkPermission" isEqualToString:call.method]) {
+        result(@([AVCaptureDevice authorizationStatusForMediaType:AVMediaTypeVideo] == AVAuthorizationStatusAuthorized));
+    } else if ([@"requestPermission" isEqualToString:call.method]) {
     } else {
         NSDictionary *argsMap = call.arguments;
         NSUInteger textureId = ((NSNumber *)argsMap[@"textureId"]).unsignedIntegerValue;

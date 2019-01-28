@@ -98,6 +98,18 @@ Future<List<CameraDescription>> availableCameras() async {
   }
 }
 
+Future<bool> checkCameraPermission() async {
+  try {
+    return await _channel.invokeMethod('checkPermission') as bool;
+  } on PlatformException catch (e) {
+    return Future.value(false);
+  } 
+}
+
+Future<bool> requestCameraPermission() {
+  
+}
+
 class CameraDescription {
   final String name;
   final CameraLensDirection lensDirection;
