@@ -98,16 +98,77 @@ Future<List<CameraDescription>> availableCameras() async {
   }
 }
 
-Future<bool> checkCameraPermission() async {
+Future<PermissionStatus> checkCameraPermission() async {
   try {
-    return await _channel.invokeMethod('checkPermission') as bool;
+    var permission = await _channel.invokeMethod('checkPermission') as String;
+    print("Permission: $permission");
+    return _getPermissionStatus(permission);
   } on PlatformException catch (e) {
-    return Future.value(false);
+    return Future.value(PermissionStatus.unknown);
   } 
 }
 
-Future<bool> requestCameraPermission() {
-  
+Future<PermissionStatus> requestCameraPermission() async {
+  try {
+      var result =  await _channel.invokeMethod('requestPermission');
+      switch(result) {
+        case "denied":
+          return PermissionStatus.denied;
+        case "dismissedForever":
+          return PermissionStatus.dismissedForever;
+        case "granted":
+          return PermissionStatus.granted;
+        default:
+          return PermissionStatus.unknown;
+      }
+    } on PlatformException catch (e) {
+      return Future.value(PermissionStatus.unknown);
+    }
+}
+
+PermissionStatus _getPermissionStatus(String status) {
+  switch(status) {
+        case "denied":
+          return PermissionStatus.denied;
+        case "dismissedForever":
+          return PermissionStatus.dismissedForever;
+        case "granted":
+          return PermissionStatus.granted;
+        case "restricted":
+          return PermissionStatus.restricted;
+        default:
+          return PermissionStatus.unknown;
+      }
+}
+
+Future<void> openSettings() {
+  try {
+      return _channel.invokeMethod('settings');
+    } on PlatformException catch (e) {
+      return Future.error(e);
+    }
+}
+
+enum PermissionStatus {
+  granted,
+
+  /// Permission to access the requested feature is denied by the user.
+  denied,
+
+  /// The feature is disabled (or not available) on the device.
+  disabled,
+
+  /// Permission to access the requested feature is granted by the user.
+  dismissedForever,
+
+  /// The user granted restricted access to the requested feature (only on iOS).
+  restricted,
+
+  /// Permission is in an unknown state
+  unknown
+
+  // settings screen
+
 }
 
 class CameraDescription {

@@ -2,6 +2,37 @@
 #import <AVFoundation/AVFoundation.h>
 #import <libkern/OSAtomic.h>
 
+@interface MyAlertViewDelegate : NSObject<UIAlertViewDelegate>
+
+typedef void (^AlertViewCompletionBlock)(NSInteger buttonIndex);
+@property (strong,nonatomic) AlertViewCompletionBlock callback;
+
++ (void)showAlertView:(UIAlertView *)alertView withCallback:(AlertViewCompletionBlock)callback;
+
+@end
+
+
+@implementation MyAlertViewDelegate
+@synthesize callback;
+
+- (void)alertView:(UIAlertView *)alertView clickedButtonAtIndex:(NSInteger)buttonIndex {
+    callback(buttonIndex);
+}
+
++ (void)showAlertView:(UIAlertView *)alertView
+         withCallback:(AlertViewCompletionBlock)callback {
+    __block MyAlertViewDelegate *delegate = [[MyAlertViewDelegate alloc] init];
+    alertView.delegate = delegate;
+    delegate.callback = ^(NSInteger buttonIndex) {
+        callback(buttonIndex);
+        alertView.delegate = nil;
+        delegate = nil;
+    };
+    [alertView show];
+}
+
+@end
+
 @interface NSError (FlutterError)
 @property(readonly, nonatomic) FlutterError *flutterError;
 @end
@@ -339,8 +370,42 @@ didOutputSampleBuffer:(CMSampleBufferRef)sampleBuffer
             [cam start];
         }
     } else if ([@"checkPermission" isEqualToString:call.method]) {
-        result(@([AVCaptureDevice authorizationStatusForMediaType:AVMediaTypeVideo] == AVAuthorizationStatusAuthorized));
+        AVAuthorizationStatus authStatus = [AVCaptureDevice authorizationStatusForMediaType:AVMediaTypeVideo];
+        if(authStatus == AVAuthorizationStatusAuthorized)
+        {
+            result(@"granted");
+        }
+        else if(authStatus == AVAuthorizationStatusDenied)
+        {
+            result(@"denied");
+        }
+        else if(authStatus == AVAuthorizationStatusRestricted)
+        {
+            result(@"restricted");
+        }
+        else if(authStatus == AVAuthorizationStatusNotDetermined)
+        {
+            result(@"unknown");
+        }
+    } else if ([@"settings" isEqualToString:call.method]){
+        [[UIApplication sharedApplication] openURL:[NSURL URLWithString:UIApplicationOpenSettingsURLString]];
+        result(nil);
     } else if ([@"requestPermission" isEqualToString:call.method]) {
+        AVAuthorizationStatus status = [AVCaptureDevice authorizationStatusForMediaType:AVMediaTypeVideo];
+        if(status == AVAuthorizationStatusDenied){ // denied
+            result(@"alreadyDenied");
+        }
+        else if(status == AVAuthorizationStatusNotDetermined){ // not determined
+            [AVCaptureDevice requestAccessForMediaType:AVMediaTypeVideo completionHandler:^(BOOL granted) {
+                if (granted) {
+                    result(@"granted");
+                } else {
+                    result(@"denied");
+                }
+            }];
+        } else {
+            result(@"unknown");
+        }
     } else {
         NSDictionary *argsMap = call.arguments;
         NSUInteger textureId = ((NSNumber *)argsMap[@"textureId"]).unsignedIntegerValue;
@@ -360,3 +425,5 @@ didOutputSampleBuffer:(CMSampleBufferRef)sampleBuffer
 }
 
 @end
+
+
