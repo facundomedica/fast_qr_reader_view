@@ -98,6 +98,9 @@ Future<List<CameraDescription>> availableCameras() async {
   }
 }
 
+/// Checks the current status of the Camera Permission
+/// 
+/// returns: [Future<PermissionStatus>] with the status from the check
 Future<PermissionStatus> checkCameraPermission() async {
   try {
     var permission = await _channel.invokeMethod('checkPermission') as String;
@@ -108,6 +111,9 @@ Future<PermissionStatus> checkCameraPermission() async {
   } 
 }
 
+/// Requests the camera permission
+/// 
+/// returns: [Future<PermissionStatus>] with the status from the request
 Future<PermissionStatus> requestCameraPermission() async {
   try {
       var result =  await _channel.invokeMethod('requestPermission');
@@ -126,6 +132,10 @@ Future<PermissionStatus> requestCameraPermission() async {
     }
 }
 
+/// Gets the PermissionStatus from the channel Method
+/// 
+/// Given a [String] status from the method channel, it returns a
+/// [PermissionStatus]
 PermissionStatus _getPermissionStatus(String status) {
   switch(status) {
         case "denied":
@@ -141,6 +151,10 @@ PermissionStatus _getPermissionStatus(String status) {
       }
 }
 
+/// Opens the native settings screen
+/// 
+/// Opens the native iOS or Android settings screens for the current app,
+/// So that the user can give the app permission even if he has denied them
 Future<void> openSettings() {
   try {
       return _channel.invokeMethod('settings');
@@ -149,6 +163,7 @@ Future<void> openSettings() {
     }
 }
 
+/// Enum to give us the status of the Permission request/check
 enum PermissionStatus {
   granted,
 
@@ -166,9 +181,6 @@ enum PermissionStatus {
 
   /// Permission is in an unknown state
   unknown
-
-  // settings screen
-
 }
 
 class CameraDescription {
