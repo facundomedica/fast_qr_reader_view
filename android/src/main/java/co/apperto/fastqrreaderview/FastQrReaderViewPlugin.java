@@ -79,7 +79,7 @@ public class FastQrReaderViewPlugin implements MethodCallHandler, PluginRegistry
     private Runnable cameraPermissionContinuation;
     private boolean requestingPermission;
     private static MethodChannel channel;
-    private Result result;
+    private Result permissionResult;
 
     // Whether we should ignore process(). This is usually caused by feeding input data faster than
     // the model can handle.
@@ -200,18 +200,19 @@ public class FastQrReaderViewPlugin implements MethodCallHandler, PluginRegistry
                         // or open another dialog explaining
                         // again the permission and directing to
                         // the app setting
-                        result.success("dismissedForever");
+                        permissionResult.success("dismissedForever");
                     } else {
-                        result.success("denied");
+                        permissionResult.success("denied");
                     }
                 } else if (grantResults[i] == PackageManager.PERMISSION_GRANTED) {
-                    result.success("granted");
+                    permissionResult.success("granted");
                 } else {
-                    result.success("unknown");
+                    permissionResult.success("unknown");
                 }
             }
             return true;
         }
+        permissionResult.success("unknown");
         return false;
     }
 
@@ -273,16 +274,22 @@ public class FastQrReaderViewPlugin implements MethodCallHandler, PluginRegistry
                 stopScanning(result);
                 break;
             case "checkPermission":
-                result.success(ContextCompat.checkSelfPermission(activity, Manifest.permission.CAMERA) == PackageManager.PERMISSION_GRANTED);
+                String permission;
+                if (ContextCompat.checkSelfPermission(activity, Manifest.permission.CAMERA) == PackageManager.PERMISSION_GRANTED) {
+                    permission = "granted";
+                } else {
+                    permission = "denied";
+                }
+                result.success(permission);
                 break;
             case "requestPermission":
-                this.result = result;
+                this.permissionResult = result;
                 Activity activity = registrar.activity();
                 ActivityCompat.requestPermissions(activity, new String[]{Manifest.permission.CAMERA}, REQUEST_PERMISSION);
                 break;
             case "settings":
+                //result.success(null);
                 openSettings();
-                result.success(null);
             case "dispose": {
                 if (camera != null) {
                     camera.dispose();

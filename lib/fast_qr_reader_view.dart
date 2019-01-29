@@ -103,10 +103,12 @@ Future<List<CameraDescription>> availableCameras() async {
 /// returns: [Future<PermissionStatus>] with the status from the check
 Future<PermissionStatus> checkCameraPermission() async {
   try {
+    print("checkCameraPermission()");
     var permission = await _channel.invokeMethod('checkPermission') as String;
     print("Permission: $permission");
     return _getPermissionStatus(permission);
   } on PlatformException catch (e) {
+    print("Error while permissions");
     return Future.value(PermissionStatus.unknown);
   } 
 }
