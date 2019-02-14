@@ -13,7 +13,7 @@
 // limitations under the License.
 package co.apperto.fastqrreaderview.java.barcodescanning;
 
-import android.support.annotation.NonNull;
+import androidx.annotation.NonNull;
 import android.util.Log;
 
 import com.google.android.gms.common.util.ArrayUtils;
