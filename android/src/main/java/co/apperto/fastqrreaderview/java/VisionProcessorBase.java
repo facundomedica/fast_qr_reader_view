@@ -15,8 +15,7 @@ package co.apperto.fastqrreaderview.java;
 
 import android.graphics.Bitmap;
 import android.media.Image;
-import android.support.annotation.NonNull;
-import android.util.Log;
+import androidx.annotation.NonNull;
 
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
@@ -28,7 +27,6 @@ import java.nio.ByteBuffer;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import co.apperto.fastqrreaderview.common.FrameMetadata;
-import co.apperto.fastqrreaderview.common.GraphicOverlay;
 import co.apperto.fastqrreaderview.common.VisionImageProcessor;
 
 /**
