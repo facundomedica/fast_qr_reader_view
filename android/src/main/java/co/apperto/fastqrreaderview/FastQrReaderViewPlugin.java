@@ -219,6 +219,9 @@ public class FastQrReaderViewPlugin implements MethodCallHandler {
             case "stopScanning":
                 stopScanning(result);
                 break;
+            case "toggleFlash":
+                toggleFlash(result);
+                break;
             case "dispose": {
                 if (camera != null) {
                     camera.dispose();
@@ -336,6 +339,15 @@ public class FastQrReaderViewPlugin implements MethodCallHandler {
         camera.barcodeScanningProcessor.shouldThrottle.set(true);
 //        camera.imageReader.setOnImageAvailableListener(null, null);
 //        camera.imageReader.close();
+    }
+
+    void toggleFlash(@NonNull Result result) {
+        toggleFlash();
+        result.success(null);
+    }
+
+    private void toggleFlash() {
+        camera.cameraSource.toggleFlash();
     }
 
 
@@ -567,6 +579,7 @@ public class FastQrReaderViewPlugin implements MethodCallHandler {
             } else {
 //                try {
                 cameraSource = new CameraSource(activity);
+                cameraSource.setFacing(isFrontFacing ? 1 : 0);
                 barcodeScanningProcessor = new BarcodeScanningProcessor(reqFormats);
                 barcodeScanningProcessor.callback = new OnCodeScanned() {
                     @Override

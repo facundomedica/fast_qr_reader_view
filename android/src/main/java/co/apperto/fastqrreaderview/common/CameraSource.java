@@ -21,12 +21,15 @@ import android.content.Context;
 import android.graphics.ImageFormat;
 import android.graphics.SurfaceTexture;
 import android.hardware.Camera;
+import android.hardware.Camera.Parameters;
 import android.hardware.Camera.CameraInfo;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresPermission;
 import android.util.Log;
 import android.view.Surface;
+import android.view.SurfaceHolder;
 import android.view.WindowManager;
+import android.os.Build;
 
 import com.google.android.gms.common.images.Size;
 
@@ -254,6 +257,37 @@ public class CameraSource {
   /** Returns the preview size that is currently in use by the underlying camera. */
   public Size getPreviewSize() {
     return previewSize;
+  }
+
+  @SuppressLint("MissingPermission")
+  @RequiresPermission(Manifest.permission.CAMERA)
+  public void toggleFlash() {
+    Camera.Parameters p = camera.getParameters();
+
+    if(p.getFlashMode() == Parameters.FLASH_MODE_ON){
+      p.setFlashMode(Parameters.FLASH_MODE_OFF);
+    }
+    else if(p.getFlashMode() == Parameters.FLASH_MODE_OFF){
+      p.setFlashMode(Parameters.FLASH_MODE_TORCH);
+    }
+    else if(p.getFlashMode().equals("off")){
+      p.setFlashMode(Parameters.FLASH_MODE_TORCH);
+    }
+    else if(p.getFlashMode().equals("torch")){
+      p.setFlashMode(Parameters.FLASH_MODE_OFF);
+    }
+    else if(p.getFlashMode() == Parameters.FLASH_MODE_AUTO){
+      p.setFlashMode(Parameters.FLASH_MODE_ON);
+    }
+    else if(p.getFlashMode() == Parameters.FLASH_MODE_TORCH){
+      p.setFlashMode(Parameters.FLASH_MODE_OFF);
+    }
+    else{
+      p.setFlashMode(Parameters.FLASH_MODE_AUTO);
+    }
+
+    camera.setParameters(p);
+    camera.startPreview();
   }
 
   /**
