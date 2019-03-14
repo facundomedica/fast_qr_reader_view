@@ -369,6 +369,8 @@ didOutputSampleBuffer:(CMSampleBufferRef)sampleBuffer
             [_camera startScanning:result];
         } else if ([@"stopScanning" isEqualToString:call.method]) {
             [_camera stopScanning:result];
+        } else if ([@"toggleFlash" isEqualToString:call.method]) {
+            [_camera toggleFlash:result];
         } else {
             result(FlutterMethodNotImplemented);
         }
