@@ -584,6 +584,9 @@ public class FastQrReaderViewPlugin implements MethodCallHandler {
                     }
                 };
                 cameraSource.setMachineLearningFrameProcessor(barcodeScanningProcessor);
+                if(isFrontFacing) {
+                    cameraSource.setFacing(CameraSource.CAMERA_FACING_FRONT);
+                }
 //                    test.shouldThrottle.set(true);
                 preview = new CameraSourcePreview(activity, null, textureEntry.surfaceTexture());
 
