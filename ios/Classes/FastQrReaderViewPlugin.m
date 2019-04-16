@@ -35,6 +35,7 @@ AVCaptureMetadataOutputObjectsDelegate>
 @property(assign, nonatomic) BOOL isScanning;
 @property(strong, nonatomic) FlutterMethodChannel *channel;
 @property(strong, nonatomic) NSArray *codeFormats;
+@property(nonatomic, assign) BOOL torchIsOn;
 
 - (instancetype)initWithCameraName:(NSString *)cameraName
                   resolutionPreset:(NSString *)resolutionPreset
@@ -64,6 +65,7 @@ AVCaptureMetadataOutputObjectsDelegate>
                  resolutionPreset);
         preset = AVCaptureSessionPresetLow;
     }
+    _torchIsOn = NO;
     _captureSession.sessionPreset = preset;
     _captureDevice = [AVCaptureDevice deviceWithUniqueID:cameraName];
     NSError *localError = nil;
@@ -164,6 +166,23 @@ AVCaptureMetadataOutputObjectsDelegate>
 
 - (void)stopScanning:(FlutterResult)result {
     _isScanning = false;
+}
+
+- (void)toggleFlash:(FlutterResult)result {
+    if ([_captureDevice hasTorch] && [_captureDevice hasFlash]){
+
+        [_captureDevice lockForConfiguration:nil];
+        if (_torchIsOn == NO) {
+            [_captureDevice setTorchMode:AVCaptureTorchModeOn];
+            [_captureDevice setFlashMode:AVCaptureFlashModeOn];
+            _torchIsOn = YES;
+        } else {
+            [_captureDevice setTorchMode:AVCaptureTorchModeOff];
+            [_captureDevice setFlashMode:AVCaptureFlashModeOff];
+            _torchIsOn = NO;            
+        }
+        [_captureDevice unlockForConfiguration];
+    }
 }
 
 - (void)startScanning:(FlutterResult)result {
@@ -350,6 +369,8 @@ didOutputSampleBuffer:(CMSampleBufferRef)sampleBuffer
             [_camera startScanning:result];
         } else if ([@"stopScanning" isEqualToString:call.method]) {
             [_camera stopScanning:result];
+        } else if ([@"toggleFlash" isEqualToString:call.method]) {
+            [_camera toggleFlash:result];
         } else {
             result(FlutterMethodNotImplemented);
         }
