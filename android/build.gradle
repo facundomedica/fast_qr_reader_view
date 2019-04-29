@@ -33,6 +33,9 @@ android {
     }
 
     dependencies {
+        classpath 'com.android.tools.build:gradle:3.3.0'
+        androidTestImplementation 'androidx.test:runner:1.1.1'
+        androidTestImplementation 'androidx.test.espresso:espresso-core:3.1.1'
         api 'androidx.annotation:annotation:1.0.0'
         api 'com.google.firebase:firebase-ml-vision:19.0.2'
         api 'com.google.firebase:firebase-core:16.0.7'
