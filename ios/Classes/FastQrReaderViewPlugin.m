@@ -385,39 +385,40 @@ didOutputSampleBuffer:(CMSampleBufferRef)sampleBuffer
                      @"captureHeight" : @(cam.captureSize.height),
                      });
             [cam start];
-        } else if ([@"checkPermission" isEqualToString:call.method]) {
-            AVAuthorizationStatus authStatus = [AVCaptureDevice authorizationStatusForMediaType:AVMediaTypeVideo];
-            if (authStatus == AVAuthorizationStatusAuthorized) {
-                result(@"granted");
-            }
-            else if (authStatus == AVAuthorizationStatusDenied) {
-                result(@"denied");
-            }
-            else if (authStatus == AVAuthorizationStatusRestricted) {
-                result(@"restricted");
-            }
-            else if (authStatus == AVAuthorizationStatusNotDetermined) {
-                result(@"unknown");
-            }
-     } else if ([@"settings" isEqualToString:call.method]){
-         [[UIApplication sharedApplication] openURL:[NSURL URLWithString:UIApplicationOpenSettingsURLString]];
-         result(nil);
-     } else if ([@"requestPermission" isEqualToString:call.method]) {
-         AVAuthorizationStatus status = [AVCaptureDevice authorizationStatusForMediaType:AVMediaTypeVideo];
-         if(status == AVAuthorizationStatusDenied){ // denied
-             result(@"alreadyDenied");
-         }
-         else if (status == AVAuthorizationStatusNotDetermined){ // not determined
-             [AVCaptureDevice requestAccessForMediaType:AVMediaTypeVideo completionHandler:^(BOOL granted) {
-                 if (granted) {
-                     result(@"granted");
-                 } else {
-                     result(@"denied");
-                 }
-             }];
-         } else {
-             result(@"unknown");
-         }
+        }
+    } else if ([@"checkPermission" isEqualToString:call.method]) {
+        AVAuthorizationStatus authStatus = [AVCaptureDevice authorizationStatusForMediaType:AVMediaTypeVideo];
+        if (authStatus == AVAuthorizationStatusAuthorized) {
+            result(@"granted");
+        }
+        else if (authStatus == AVAuthorizationStatusDenied) {
+            result(@"denied");
+        }
+        else if (authStatus == AVAuthorizationStatusRestricted) {
+            result(@"restricted");
+        }
+        else if (authStatus == AVAuthorizationStatusNotDetermined) {
+            result(@"unknown");
+        }
+    } else if ([@"settings" isEqualToString:call.method]){
+        [[UIApplication sharedApplication] openURL:[NSURL URLWithString:UIApplicationOpenSettingsURLString]];
+        result(nil);
+    } else if ([@"requestPermission" isEqualToString:call.method]) {
+        AVAuthorizationStatus status = [AVCaptureDevice authorizationStatusForMediaType:AVMediaTypeVideo];
+        if(status == AVAuthorizationStatusDenied){ // denied
+            result(@"alreadyDenied");
+        }
+        else if (status == AVAuthorizationStatusNotDetermined){ // not determined
+            [AVCaptureDevice requestAccessForMediaType:AVMediaTypeVideo completionHandler:^(BOOL granted) {
+                if (granted) {
+                    result(@"granted");
+                } else {
+                    result(@"denied");
+                }
+            }];
+        } else {
+            result(@"unknown");
+        }
     } else {
         NSDictionary *argsMap = call.arguments;
         NSUInteger textureId = ((NSNumber *)argsMap[@"textureId"]).unsignedIntegerValue;
