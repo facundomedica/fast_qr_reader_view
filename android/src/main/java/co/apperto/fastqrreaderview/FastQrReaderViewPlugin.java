@@ -213,7 +213,7 @@ public class FastQrReaderViewPlugin implements MethodCallHandler, PluginRegistry
             }
             return true;
         }
-        permissionResult.success("unknown");
+
         return false;
     }
 
