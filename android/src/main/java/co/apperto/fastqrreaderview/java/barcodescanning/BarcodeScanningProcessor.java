@@ -27,10 +27,20 @@ import com.google.firebase.ml.vision.common.FirebaseVisionImage;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import co.apperto.fastqrreaderview.common.FrameMetadata;
 import co.apperto.fastqrreaderview.java.VisionProcessorBase;
+
+import static com.google.firebase.ml.vision.barcode.FirebaseVisionBarcode.FORMAT_CODE_128;
+import static com.google.firebase.ml.vision.barcode.FirebaseVisionBarcode.FORMAT_EAN_13;
+import static com.google.firebase.ml.vision.barcode.FirebaseVisionBarcode.FORMAT_EAN_8;
+import static com.google.firebase.ml.vision.barcode.FirebaseVisionBarcode.FORMAT_QR_CODE;
+import static com.google.firebase.ml.vision.barcode.FirebaseVisionBarcode.FORMAT_UPC_A;
+import static com.google.firebase.ml.vision.barcode.FirebaseVisionBarcode.FORMAT_UPC_E;
 
 /**
  * Barcode Detector Demo.
@@ -40,6 +50,18 @@ public class BarcodeScanningProcessor extends VisionProcessorBase<List<FirebaseV
     private static final String TAG = "BarcodeScanProc";
 
     private final FirebaseVisionBarcodeDetector detector;
+
+    private static final Map<Integer, String> formatMap;
+    static {
+        Map<Integer, String> map = new HashMap<>();
+        map.put(FORMAT_QR_CODE, "qrcode");
+        map.put(FORMAT_CODE_128, "code128");
+        map.put(FORMAT_EAN_13, "ean13");
+        map.put(FORMAT_EAN_8, "ean8");
+        map.put(FORMAT_UPC_A, "upca");
+        map.put(FORMAT_UPC_E, "upce");
+        formatMap = Collections.unmodifiableMap(map);
+    }
 
     public OnCodeScanned callback;
 
@@ -76,17 +98,17 @@ public class BarcodeScanningProcessor extends VisionProcessorBase<List<FirebaseV
     @Override
     protected void onSuccess(
             @NonNull List<FirebaseVisionBarcode> barcodes,
-            @NonNull FrameMetadata frameMetadata) { //,
-//      @NonNull GraphicOverlay graphicOverlay) {
-//    graphicOverlay.clear();
+            @NonNull FrameMetadata frameMetadata) {
 
-        for (int i = 0; i < barcodes.size(); ++i) {
-            FirebaseVisionBarcode barcode = barcodes.get(i);
-            Log.d("BARCODE!", barcode.getRawValue());
-            callback.onCodeScanned(barcode);
-//      BarcodeGraphic barcodeGraphic = new BarcodeGraphic(graphicOverlay, barcode);
-//      graphicOverlay.add(barcodeGraphic);
+        List<Map<String,Object>> barcodeList = new ArrayList<>();
+        for (FirebaseVisionBarcode barcode : barcodes) {
+            Map<String, Object> barcodeObject = new HashMap<>();
+            barcodeObject.put("rawValue", barcode.getRawValue());
+            barcodeObject.put("type", formatMap.get(barcode.getFormat()));
+
+            barcodeList.add(barcodeObject);
         }
+        callback.onCodeScanned(barcodeList);
     }
 
     @Override

@@ -176,22 +176,41 @@ AVCaptureMetadataOutputObjectsDelegate>
 
 - (void)captureOutput:(AVCaptureOutput *)output didOutputMetadataObjects:(NSArray<__kindof AVMetadataObject *> *)metadataObjects fromConnection:(AVCaptureConnection *)connection {
     if (metadataObjects != nil && [metadataObjects count] > 0) {
-        AVMetadataMachineReadableCodeObject *metadataObj = [metadataObjects objectAtIndex:0];
-//        if ([[metadataObj type] isEqualToString:AVMetadataObjectTypeQRCode]) {
-            if (_isScanning) {
-                [self performSelectorOnMainThread:@selector(stopScanningWithResult:) withObject:[metadataObj stringValue] waitUntilDone:NO];
-            }
-//        }
+      NSMutableArray *detectedBarcodes = [[NSMutableArray alloc] init];
+      for(AVMetadataMachineReadableCodeObject *barcodeMetaData in metadataObjects) {
+        NSString *type = @"unknown";
+        if ([barcodeMetaData type] == AVMetadataObjectTypeQRCode) {
+          type = @"qrcode";
+        } else if ([barcodeMetaData type] == AVMetadataObjectTypeCode128Code) {
+          type = @"code128";
+        } else if ([barcodeMetaData type] == AVMetadataObjectTypeEAN13Code) {
+          type = @"ean13";
+        } else if ([barcodeMetaData type] == AVMetadataObjectTypeEAN8Code) {
+          type = @"ean8";
+        } else if ([barcodeMetaData type] == AVMetadataObjectTypeUPCECode) {
+          type = @"upce";
+        }
+        NSDictionary *barcode = @{@"rawValue" : [barcodeMetaData stringValue], @"type" : type};
+        [detectedBarcodes addObject:barcode];
+      }
+      if (_isScanning) {
+        [self performSelectorOnMainThread:@selector(stopScanningWithResult:) withObject:detectedBarcodes waitUntilDone:NO];
+      }
     }
 }
 
+-(void)stopScanningWithResult:(NSArray*)results{
+  if ([results count] > 0 && _isScanning) {
+    [_channel invokeMethod:@"updateCode" arguments:results];
+    _isScanning = false;
+  }}
 
--(void)stopScanningWithResult:(NSString*)result {
-    if (![result  isEqual: @""] && _isScanning) {
-        [_channel invokeMethod:@"updateCode" arguments:result];
-        _isScanning = false;
-    }
-}
+//-(void)stopScanningWithResult:(NSString*)result {
+//    if (![result  isEqual: @""] && _isScanning) {
+//        [_channel invokeMethod:@"updateCode" arguments:result];
+//        _isScanning = false;
+//    }
+//}
 
 - (void)stopScanning:(FlutterResult)result {
     _isScanning = false;

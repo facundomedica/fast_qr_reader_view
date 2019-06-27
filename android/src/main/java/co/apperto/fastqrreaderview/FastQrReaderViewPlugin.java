@@ -655,16 +655,10 @@ public class FastQrReaderViewPlugin implements MethodCallHandler, PluginRegistry
                 barcodeScanningProcessor = new BarcodeScanningProcessor(reqFormats);
                 barcodeScanningProcessor.callback = new OnCodeScanned() {
                     @Override
-                    public void onCodeScanned(FirebaseVisionBarcode barcode) {
+                    public void onCodeScanned(List<Map<String, Object>> barcodes) {
                         if (camera.scanning) {
-//                                            if (firebaseVisionBarcodes.size() > 0) {
-                            Log.w(TAG, "onSuccess: " + barcode.getRawValue());
-                            channel.invokeMethod("updateCode", barcode.getRawValue());
-//                                                Map<String, String> event = new HashMap<>();
-//                                                event.put("eventType", "cameraClosing");
-//                                                camera.eventSink.success(event);
+                            channel.invokeMethod("updateCode", barcodes);
                             stopScanning();
-//                                            }
                         }
                     }
                 };
