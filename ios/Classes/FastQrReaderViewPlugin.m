@@ -193,7 +193,7 @@ AVCaptureMetadataOutputObjectsDelegate>
         NSDictionary *barcode = @{@"rawValue" : [barcodeMetaData stringValue], @"type" : type};
         [detectedBarcodes addObject:barcode];
       }
-      if (_isScanning) {
+      if (_isScanning &&( [detectedBarcodes count] > 0)) {
         [self performSelectorOnMainThread:@selector(stopScanningWithResult:) withObject:detectedBarcodes waitUntilDone:NO];
       }
     }
