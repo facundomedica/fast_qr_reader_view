@@ -6,6 +6,7 @@ List<CameraDescription> cameras;
 
 Future<Null> main() async {
   // Fetch the available cameras before initializing the app.
+  WidgetsFlutterBinding.ensureInitialized();
   try {
     cameras = await availableCameras();
   } on QRReaderException catch (e) {

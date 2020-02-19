@@ -5,18 +5,18 @@ PODS:
 
 DEPENDENCIES:
   - fast_qr_reader_view (from `.symlinks/plugins/fast_qr_reader_view/ios`)
-  - Flutter (from `.symlinks/flutter/ios-release`)
+  - Flutter (from `.symlinks/flutter/ios`)
 
 EXTERNAL SOURCES:
   fast_qr_reader_view:
     :path: ".symlinks/plugins/fast_qr_reader_view/ios"
   Flutter:
-    :path: ".symlinks/flutter/ios-release"
+    :path: ".symlinks/flutter/ios"
 
 SPEC CHECKSUMS:
   fast_qr_reader_view: 53b38a544886e650381ca579e0cdd5ae142fffa6
-  Flutter: 58dd7d1b27887414a370fcccb9e645c08ffd7a6a
+  Flutter: 0e3d915762c693b495b44d77113d4970485de6ec
 
 PODFILE CHECKSUM: 1e5af4103afd21ca5ead147d7b81d06f494f51a2
 
-COCOAPODS: 1.7.1
+COCOAPODS: 1.8.4

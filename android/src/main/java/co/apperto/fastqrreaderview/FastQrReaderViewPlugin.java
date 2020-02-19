@@ -42,6 +42,10 @@ import co.apperto.fastqrreaderview.common.CameraSource;
 import co.apperto.fastqrreaderview.common.CameraSourcePreview;
 import co.apperto.fastqrreaderview.java.barcodescanning.BarcodeScanningProcessor;
 import co.apperto.fastqrreaderview.java.barcodescanning.OnCodeScanned;
+import io.flutter.embedding.engine.plugins.FlutterPlugin;
+import io.flutter.embedding.engine.plugins.activity.ActivityAware;
+import io.flutter.embedding.engine.plugins.activity.ActivityPluginBinding;
+import io.flutter.plugin.common.BinaryMessenger;
 import io.flutter.plugin.common.EventChannel;
 import io.flutter.plugin.common.MethodCall;
 import io.flutter.plugin.common.MethodChannel;
@@ -54,7 +58,7 @@ import io.flutter.view.FlutterView;
 /**
  * FastQrReaderViewPlugin
  */
-public class FastQrReaderViewPlugin implements MethodCallHandler, PluginRegistry.RequestPermissionsResultListener {
+public class FastQrReaderViewPlugin implements MethodCallHandler, PluginRegistry.RequestPermissionsResultListener, FlutterPlugin, ActivityAware {
 
     private static final int CAMERA_REQUEST_ID = 513469796;
     private static final int REQUEST_PERMISSION = 47;
@@ -70,10 +74,16 @@ public class FastQrReaderViewPlugin implements MethodCallHandler, PluginRegistry
             };
 
     private static CameraManager cameraManager;
-    private final FlutterView view;
+    private FlutterView view;
+    private static FlutterView.SurfaceTextureEntry textureEntry;
+
     private QrReader camera;
+    private Context context;
     private Activity activity;
     private Registrar registrar;
+    private BinaryMessenger binaryMessenger;
+    private FlutterPluginBinding flutterPluginBinding;
+
     private Application.ActivityLifecycleCallbacks activityLifecycleCallbacks;
     // The code to run after requesting camera permissions.
     private Runnable cameraPermissionContinuation;
@@ -86,13 +96,118 @@ public class FastQrReaderViewPlugin implements MethodCallHandler, PluginRegistry
 //    private final AtomicBoolean shouldThrottle = new AtomicBoolean(false);
 
 
-    private FastQrReaderViewPlugin(Registrar registrar, FlutterView view, Activity activity) {
+    public FastQrReaderViewPlugin() {
+    }
 
-        this.registrar = registrar;
-        this.view = view;
-        this.activity = activity;
+//    private FastQrReaderViewPlugin(Registrar registrar, FlutterView view, Activity activity) {
+//
+//        this.registrar = registrar;
+//        this.binaryMessenger = registrar.messenger();
+//        this.view = view;
+//        this.activity = activity;
+//
+//        registrar.addRequestPermissionsResultListener(new CameraRequestPermissionsListener());
+//
+//        this.activityLifecycleCallbacks =
+//                new Application.ActivityLifecycleCallbacks() {
+//                    @Override
+//                    public void onActivityCreated(Activity activity, Bundle savedInstanceState) {
+//                    }
+//
+//                    @Override
+//                    public void onActivityStarted(Activity activity) {
+//                    }
+//
+//                    @Override
+//                    public void onActivityResumed(Activity activity) {
+//                        if (requestingPermission) {
+//                            requestingPermission = false;
+//                            return;
+//                        }
+//                        if (activity == FastQrReaderViewPlugin.this.activity) {
+//                            if (camera != null) {
+//                                camera.startCameraSource();
+//                            }
+//                        }
+//                    }
+//
+//                    @Override
+//                    public void onActivityPaused(Activity activity) {
+//                        if (activity == FastQrReaderViewPlugin.this.activity) {
+//                            if (camera != null) {
+//                                if (camera.preview != null) {
+//                                    camera.preview.stop();
+//
+//                                }
+//                            }
+//                        }
+//                    }
+//
+//                    @Override
+//                    public void onActivityStopped(Activity activity) {
+//                        if (activity == FastQrReaderViewPlugin.this.activity) {
+//                            if (camera != null) {
+//                                if (camera.preview != null) {
+//                                    camera.preview.stop();
+//                                }
+//
+//                                if (camera.cameraSource != null) {
+//                                    camera.cameraSource.release();
+//                                }
+//                            }
+//                        }
+//                    }
+//
+//                    @Override
+//                    public void onActivitySaveInstanceState(Activity activity, Bundle outState) {
+//                    }
+//
+//                    @Override
+//                    public void onActivityDestroyed(Activity activity) {
+//
+//                    }
+//                };
+//    }
+//
+//
+//    /**
+//     * Plugin registration.
+//     */
+//    public static void registerWith(Registrar registrar) {
+//        channel =
+//                new MethodChannel(registrar.messenger(), "fast_qr_reader_view");
+//
+//        cameraManager = (CameraManager) registrar.activity().getSystemService(Context.CAMERA_SERVICE);
+//
+//        channel.setMethodCallHandler(
+//                new FastQrReaderViewPlugin(registrar, registrar.view(), registrar.activity()));
+//
+//        FastQrReaderViewPlugin plugin = new FastQrReaderViewPlugin(registrar, registrar.view(), registrar.activity());
+//        channel.setMethodCallHandler(plugin);
+//        registrar.addRequestPermissionsResultListener(plugin);
+//    }
 
-        registrar.addRequestPermissionsResultListener(new CameraRequestPermissionsListener());
+    @Override
+    public void onAttachedToEngine(@NonNull FlutterPluginBinding binding) {
+        this.context = binding.getApplicationContext();
+        this.binaryMessenger = binding.getBinaryMessenger();
+        this.flutterPluginBinding = binding;
+        textureEntry = binding.getTextureRegistry().createSurfaceTexture();
+
+    }
+
+    @Override
+    public void onDetachedFromEngine(@NonNull FlutterPluginBinding binding) {
+        this.flutterPluginBinding = null;
+    }
+
+    @Override
+    public void onAttachedToActivity(ActivityPluginBinding binding) {
+        this.activity = binding.getActivity();
+        channel = new MethodChannel(flutterPluginBinding.getBinaryMessenger(), "fast_qr_reader_view");
+        channel.setMethodCallHandler(this);
+        binding.addRequestPermissionsResultListener(this);
+        cameraManager = (CameraManager) binding.getActivity().getSystemService(Context.CAMERA_SERVICE);
 
         this.activityLifecycleCallbacks =
                 new Application.ActivityLifecycleCallbacks() {
@@ -155,28 +270,28 @@ public class FastQrReaderViewPlugin implements MethodCallHandler, PluginRegistry
                 };
     }
 
-    /**
-     * Plugin registration.
-     */
-    public static void registerWith(Registrar registrar) {
-        channel =
-                new MethodChannel(registrar.messenger(), "fast_qr_reader_view");
+    @Override
+    public void onDetachedFromActivityForConfigChanges() {
+        stopScanning();
+    }
 
-        cameraManager = (CameraManager) registrar.activity().getSystemService(Context.CAMERA_SERVICE);
+    @Override
+    public void onReattachedToActivityForConfigChanges(ActivityPluginBinding activityPluginBinding) {
+        // TODO: your plugin is now attached to a new Activity
+        // after a configuration change.
+    }
 
-        channel.setMethodCallHandler(
-                new FastQrReaderViewPlugin(registrar, registrar.view(), registrar.activity()));
-
-        FastQrReaderViewPlugin plugin = new FastQrReaderViewPlugin(registrar, registrar.view(), registrar.activity());
-        channel.setMethodCallHandler(plugin);
-        registrar.addRequestPermissionsResultListener(plugin);
+    @Override
+    public void onDetachedFromActivity() {
+        // TODO: your plugin is no longer associated with an Activity.
+        // Clean up references.
     }
 
     /*
      * Open Settings screens
      */
     private void openSettings() {
-        Activity activity = registrar.activity();
+//        Activity activity = registrar.activity();
         Intent intent = new Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS, Uri.parse("package:" + activity.getPackageName()));
         intent.addCategory(Intent.CATEGORY_DEFAULT);
         intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
@@ -286,7 +401,7 @@ public class FastQrReaderViewPlugin implements MethodCallHandler, PluginRegistry
                 break;
             case "requestPermission":
                 this.permissionResult = result;
-                Activity activity = registrar.activity();
+//                Activity activity = registrar.activity();
                 ActivityCompat.requestPermissions(activity, new String[]{Manifest.permission.CAMERA}, REQUEST_PERMISSION);
                 break;
             case "settings":
@@ -503,7 +618,11 @@ public class FastQrReaderViewPlugin implements MethodCallHandler, PluginRegistry
                 }
             }
 
-            textureEntry = view.createSurfaceTexture();
+            if(FastQrReaderViewPlugin.textureEntry != null) {
+                textureEntry = FastQrReaderViewPlugin.textureEntry;
+            } else {
+                textureEntry = view.createSurfaceTexture();
+            }
 //barcodeScanningProcessor.onSuccess();
 //
             try {
@@ -561,9 +680,7 @@ public class FastQrReaderViewPlugin implements MethodCallHandler, PluginRegistry
                 } else {
                     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
                         requestingPermission = true;
-                        registrar
-                                .activity()
-                                .requestPermissions(
+                        activity.requestPermissions(
                                         new String[]{Manifest.permission.CAMERA, Manifest.permission.RECORD_AUDIO},
                                         CAMERA_REQUEST_ID);
                     }
@@ -578,7 +695,7 @@ public class FastQrReaderViewPlugin implements MethodCallHandler, PluginRegistry
         //
         private void registerEventChannel() {
             new EventChannel(
-                    registrar.messenger(), "fast_qr_reader_view/cameraEvents" + textureEntry.id())
+                    binaryMessenger, "fast_qr_reader_view/cameraEvents" + textureEntry.id())
                     .setStreamHandler(
                             new EventChannel.StreamHandler() {
                                 @Override
