@@ -203,6 +203,8 @@ public class FastQrReaderViewPlugin implements MethodCallHandler, PluginRegistry
 
     @Override
     public void onAttachedToActivity(ActivityPluginBinding binding) {
+        Log.d(TAG, "- ATTACHED");
+
         this.activity = binding.getActivity();
         channel = new MethodChannel(flutterPluginBinding.getBinaryMessenger(), "fast_qr_reader_view");
         channel.setMethodCallHandler(this);
@@ -221,6 +223,7 @@ public class FastQrReaderViewPlugin implements MethodCallHandler, PluginRegistry
 
                     @Override
                     public void onActivityResumed(Activity activity) {
+                        Log.d(TAG, "RESUMED");
                         if (requestingPermission) {
                             requestingPermission = false;
                             return;
@@ -234,6 +237,8 @@ public class FastQrReaderViewPlugin implements MethodCallHandler, PluginRegistry
 
                     @Override
                     public void onActivityPaused(Activity activity) {
+                        Log.d(TAG, "PAUSED");
+
                         if (activity == FastQrReaderViewPlugin.this.activity) {
                             if (camera != null) {
                                 if (camera.preview != null) {
@@ -246,6 +251,8 @@ public class FastQrReaderViewPlugin implements MethodCallHandler, PluginRegistry
 
                     @Override
                     public void onActivityStopped(Activity activity) {
+                        Log.d(TAG, "STOPPED");
+
                         if (activity == FastQrReaderViewPlugin.this.activity) {
                             if (camera != null) {
                                 if (camera.preview != null) {
@@ -272,19 +279,49 @@ public class FastQrReaderViewPlugin implements MethodCallHandler, PluginRegistry
 
     @Override
     public void onDetachedFromActivityForConfigChanges() {
+        Log.d(TAG, "- DETACHEDFORCONFIG");
+
         stopScanning();
+        if (camera != null) {
+            if (camera.preview != null) {
+                camera.preview.stop();
+            }
+
+            if (camera.cameraSource != null) {
+                camera.cameraSource.release();
+            }
+        }
     }
 
     @Override
     public void onReattachedToActivityForConfigChanges(ActivityPluginBinding activityPluginBinding) {
-        // TODO: your plugin is now attached to a new Activity
-        // after a configuration change.
+        Log.d(TAG, "- REATTACHEDFORCONFIG");
+
+        if (requestingPermission) {
+            requestingPermission = false;
+            return;
+        }
+        if (activity == FastQrReaderViewPlugin.this.activity) {
+            if (camera != null) {
+                camera.startCameraSource();
+            }
+        }
     }
 
     @Override
     public void onDetachedFromActivity() {
-        // TODO: your plugin is no longer associated with an Activity.
-        // Clean up references.
+        Log.d(TAG, "- DETACHED");
+
+        stopScanning();
+        if (camera != null) {
+            if (camera.preview != null) {
+                camera.preview.stop();
+            }
+
+            if (camera.cameraSource != null) {
+                camera.cameraSource.release();
+            }
+        }
     }
 
     /*
