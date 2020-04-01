@@ -1015,6 +1015,7 @@ public class FastQrReaderViewPlugin implements MethodCallHandler, PluginRegistry
 
         private void dispose() {
 //            close();
+            camera.
             textureEntry.release();
 //            if (camera != null) {
             if (preview != null) {

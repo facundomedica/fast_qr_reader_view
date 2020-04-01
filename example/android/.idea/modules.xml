@@ -3,7 +3,10 @@
   <component name="ProjectModuleManager">
     <modules>
       <module fileurl="file://$PROJECT_DIR$/android.iml" filepath="$PROJECT_DIR$/android.iml" />
+      <module fileurl="file://$PROJECT_DIR$/app/android-app.iml" filepath="$PROJECT_DIR$/app/android-app.iml" group="android/app" />
+      <module fileurl="file://$PROJECT_DIR$/../../android/android-fast_qr_reader_view.iml" filepath="$PROJECT_DIR$/../../android/android-fast_qr_reader_view.iml" group="android/fast_qr_reader_view" />
       <module fileurl="file://$PROJECT_DIR$/app/app.iml" filepath="$PROJECT_DIR$/app/app.iml" />
+      <module fileurl="file://$PROJECT_DIR$/example-android.iml" filepath="$PROJECT_DIR$/example-android.iml" group="android" />
       <module fileurl="file://$PROJECT_DIR$/../../android/fast_qr_reader_view.iml" filepath="$PROJECT_DIR$/../../android/fast_qr_reader_view.iml" />
     </modules>
   </component>
