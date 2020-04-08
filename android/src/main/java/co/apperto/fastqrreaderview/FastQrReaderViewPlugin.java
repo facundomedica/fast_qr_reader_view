@@ -18,10 +18,12 @@ import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.provider.Settings;
+
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
+
 import android.util.Log;
 import android.util.Size;
 import android.util.SparseIntArray;
@@ -344,9 +346,9 @@ public class FastQrReaderViewPlugin implements MethodCallHandler, PluginRegistry
             for (int i = 0, len = permissions.length; i < len; i++) {
                 String permission = permissions[i];
                 if (grantResults[i] == PackageManager.PERMISSION_DENIED) {
-                // user rejected the permission
-                    boolean showRationale = ActivityCompat.shouldShowRequestPermissionRationale( activity, permission );
-                    if (! showRationale) {
+                    // user rejected the permission
+                    boolean showRationale = ActivityCompat.shouldShowRequestPermissionRationale(activity, permission);
+                    if (!showRationale) {
                         // user also CHECKED "never ask again"
                         // you can either enable some fall back,
                         // disable features of your app
@@ -448,14 +450,14 @@ public class FastQrReaderViewPlugin implements MethodCallHandler, PluginRegistry
                 break;
             case "dispose": {
                 if (camera != null) {
-                    camera.dispose();
+                    camera.close();
                 }
 
-                if (this.activity != null && this.activityLifecycleCallbacks != null) {
-                    this.activity
-                            .getApplication()
-                            .unregisterActivityLifecycleCallbacks(this.activityLifecycleCallbacks);
-                }
+//                if (this.activity != null && this.activityLifecycleCallbacks != null) {
+//                    this.activity
+//                            .getApplication()
+//                            .unregisterActivityLifecycleCallbacks(this.activityLifecycleCallbacks);
+//                }
                 result.success(null);
                 break;
             }
@@ -655,7 +657,7 @@ public class FastQrReaderViewPlugin implements MethodCallHandler, PluginRegistry
                 }
             }
 
-            if(FastQrReaderViewPlugin.textureEntry != null) {
+            if (FastQrReaderViewPlugin.textureEntry != null) {
                 textureEntry = FastQrReaderViewPlugin.textureEntry;
             } else {
                 textureEntry = view.createSurfaceTexture();
@@ -718,8 +720,8 @@ public class FastQrReaderViewPlugin implements MethodCallHandler, PluginRegistry
                     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
                         requestingPermission = true;
                         activity.requestPermissions(
-                                        new String[]{Manifest.permission.CAMERA, Manifest.permission.RECORD_AUDIO},
-                                        CAMERA_REQUEST_ID);
+                                new String[]{Manifest.permission.CAMERA},
+                                CAMERA_REQUEST_ID);
                     }
                 }
             } catch (CameraAccessException e) {
@@ -1006,7 +1008,7 @@ public class FastQrReaderViewPlugin implements MethodCallHandler, PluginRegistry
             }
 
             if (cameraSource != null) {
-                cameraSource.release();
+                cameraSource.stop();
             }
 
             camera = null;
@@ -1015,15 +1017,15 @@ public class FastQrReaderViewPlugin implements MethodCallHandler, PluginRegistry
 
         private void dispose() {
 //            close();
-            camera.
-            textureEntry.release();
+
+            camera.textureEntry.release();
 //            if (camera != null) {
             if (preview != null) {
                 preview.stop();
             }
 
             if (cameraSource != null) {
-                cameraSource.release();
+                cameraSource.stop();
             }
 //            }
         }

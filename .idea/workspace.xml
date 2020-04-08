@@ -9,11 +9,12 @@
       <change beforePath="$PROJECT_DIR$/android/src/main/java/co/apperto/fastqrreaderview/FastQrReaderViewPlugin.java" beforeDir="false" afterPath="$PROJECT_DIR$/android/src/main/java/co/apperto/fastqrreaderview/FastQrReaderViewPlugin.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/example/android/.idea/caches/build_file_checksums.ser" beforeDir="false" afterPath="$PROJECT_DIR$/example/android/.idea/caches/build_file_checksums.ser" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/example/android/.idea/gradle.xml" beforeDir="false" afterPath="$PROJECT_DIR$/example/android/.idea/gradle.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/example/android/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/example/android/.idea/misc.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/example/android/.idea/modules.xml" beforeDir="false" afterPath="$PROJECT_DIR$/example/android/.idea/modules.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/example/ios/.symlinks/plugins/fast_qr_reader_view/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/example/ios/.symlinks/plugins/fast_qr_reader_view/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/example/ios/.symlinks/plugins/fast_qr_reader_view/example/android/.idea/caches/build_file_checksums.ser" beforeDir="false" afterPath="$PROJECT_DIR$/example/ios/.symlinks/plugins/fast_qr_reader_view/example/android/.idea/caches/build_file_checksums.ser" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/example/ios/.symlinks/plugins/fast_qr_reader_view/example/android/.idea/gradle.xml" beforeDir="false" afterPath="$PROJECT_DIR$/example/ios/.symlinks/plugins/fast_qr_reader_view/example/android/.idea/gradle.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/example/ios/.symlinks/plugins/fast_qr_reader_view/example/android/.idea/modules.xml" beforeDir="false" afterPath="$PROJECT_DIR$/example/ios/.symlinks/plugins/fast_qr_reader_view/example/android/.idea/modules.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/example/ios/.symlinks/plugins/fast_qr_reader_view/android/src/main/java/co/apperto/fastqrreaderview/FastQrReaderViewPlugin.java" beforeDir="false" afterPath="$PROJECT_DIR$/example/ios/.symlinks/plugins/fast_qr_reader_view/android/src/main/java/co/apperto/fastqrreaderview/FastQrReaderViewPlugin.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/example/ios/.symlinks/plugins/fast_qr_reader_view/example/android/.idea/caches/build_file_checksums.ser" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/example/ios/.symlinks/plugins/fast_qr_reader_view/example/android/.idea/gradle.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/example/ios/.symlinks/plugins/fast_qr_reader_view/example/android/.idea/modules.xml" beforeDir="false" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="SHOW_DIALOG" value="false" />
@@ -24,7 +25,7 @@
   <component name="DefaultGradleProjectSettings">
     <option name="isMigrated" value="true" />
   </component>
-  <component name="ExecutionTargetManager" SELECTED_TARGET="0422640871" />
+  <component name="ExecutionTargetManager" SELECTED_TARGET="Pixel_2_API_28" />
   <component name="Git.Settings">
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
   </component>
