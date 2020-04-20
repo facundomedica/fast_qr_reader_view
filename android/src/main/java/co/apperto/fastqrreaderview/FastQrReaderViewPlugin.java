@@ -812,7 +812,7 @@ public class FastQrReaderViewPlugin implements MethodCallHandler, PluginRegistry
                 barcodeScanningProcessor.callback = new OnCodeScanned() {
                     @Override
                     public void onCodeScanned(List<Map<String, Object>> barcodes) {
-                        if (camera.scanning) {
+                        if (camera != null && camera.scanning) {
                             channel.invokeMethod("updateCode", barcodes);
                             stopScanning();
                         }
