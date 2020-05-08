@@ -420,6 +420,7 @@ class QRReaderController extends ValueNotifier<QRReaderValue> {
       return new Future<Null>.value(null);
     }
     _isDisposed = true;
+    value = value.copyWith(isInitialized: false, isScanning: false);
     super.dispose();
     if (_creatingCompleter == null) {
       return new Future<Null>.value(null);
