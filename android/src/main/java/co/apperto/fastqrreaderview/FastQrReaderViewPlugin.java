@@ -210,7 +210,7 @@ public class FastQrReaderViewPlugin implements MethodCallHandler, PluginRegistry
         this.activity = binding.getActivity();
         channel = new MethodChannel(flutterPluginBinding.getBinaryMessenger(), "fast_qr_reader_view");
         channel.setMethodCallHandler(this);
-        binding.addRequestPermissionsResultListener(this);
+        binding.addRequestPermissionsResultListener(new CameraRequestPermissionsListener());
         cameraManager = (CameraManager) binding.getActivity().getSystemService(Context.CAMERA_SERVICE);
 
         this.activityLifecycleCallbacks =
@@ -360,7 +360,11 @@ public class FastQrReaderViewPlugin implements MethodCallHandler, PluginRegistry
                         permissionResult.success("denied");
                     }
                 } else if (grantResults[i] == PackageManager.PERMISSION_GRANTED) {
-                    permissionResult.success("granted");
+//                    permissionResult.success("granted");
+                    Log.d(TAG, "################ PERMISSIONGRANTED #################");
+                    if (cameraPermissionContinuation != null) {
+                        cameraPermissionContinuation.run();
+                    }
                 } else {
                     permissionResult.success("unknown");
                 }
@@ -561,7 +565,7 @@ public class FastQrReaderViewPlugin implements MethodCallHandler, PluginRegistry
     }
 
     private void stopScanning() {
-        if(camera == null) {
+        if (camera == null) {
             return;
         }
         camera.scanning = false;
@@ -721,6 +725,7 @@ public class FastQrReaderViewPlugin implements MethodCallHandler, PluginRegistry
                     cameraPermissionContinuation.run();
                 } else {
                     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                        Log.d(TAG, "############# REQUESTING PERMISSION ##############");
                         requestingPermission = true;
                         activity.requestPermissions(
                                 new String[]{Manifest.permission.CAMERA},
