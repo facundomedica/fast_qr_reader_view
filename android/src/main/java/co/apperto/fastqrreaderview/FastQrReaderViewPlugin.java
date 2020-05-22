@@ -569,7 +569,9 @@ public class FastQrReaderViewPlugin implements MethodCallHandler, PluginRegistry
             return;
         }
         camera.scanning = false;
-        camera.barcodeScanningProcessor.shouldThrottle.set(true);
+        if(camera.barcodeScanningProcessor != null) {
+            camera.barcodeScanningProcessor.shouldThrottle.set(true);
+        }
 //        camera.imageReader.setOnImageAvailableListener(null, null);
 //        camera.imageReader.close();
     }
