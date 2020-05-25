@@ -26,16 +26,14 @@ android {
 
     defaultConfig {
         minSdkVersion 21
-        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
     lintOptions {
         disable 'InvalidPackage'
     }
 
     dependencies {
-        api 'androidx.appcompat:appcompat:1.0.0'
-        api 'androidx.annotation:annotation:1.0.0'
-        api 'com.google.firebase:firebase-ml-vision:24.0.1'
-        api 'com.google.firebase:firebase-core:17.2.1'
+        api 'androidx.appcompat:appcompat:1.1.0'
+        api 'androidx.annotation:annotation:1.1.0'
+        api 'com.google.firebase:firebase-ml-vision:24.0.3'
     }
 }

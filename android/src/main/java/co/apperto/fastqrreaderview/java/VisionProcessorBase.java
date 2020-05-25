@@ -15,6 +15,7 @@ package co.apperto.fastqrreaderview.java;
 
 import android.graphics.Bitmap;
 import android.media.Image;
+
 import androidx.annotation.NonNull;
 
 import com.google.android.gms.tasks.OnFailureListener;
@@ -77,7 +78,6 @@ public abstract class VisionProcessorBase<T> implements VisionImageProcessor {
     /**
      * Detects feature from given media.Image
      *
-     * @return created FirebaseVisionImage
      */
     @Override
     public void process(Image image, int rotation) {//, final GraphicOverlay graphicOverlay) {

@@ -7,6 +7,7 @@ List<CameraDescription> cameras;
 Future<Null> main() async {
   // Fetch the available cameras before initializing the app.
   try {
+    WidgetsFlutterBinding.ensureInitialized();
     cameras = await availableCameras();
   } on QRReaderException catch (e) {
     logError(e.code, e.description);
@@ -140,7 +141,7 @@ class _MyAppState extends State<MyApp> with SingleTickerProviderStateMixin {
       await controller.dispose();
     }
     controller = new QRReaderController(cameraDescription, ResolutionPreset.low,
-        [CodeFormat.qr, CodeFormat.pdf417], onCodeRead);
+        CodeFormat.values, onCodeRead);
 
     // If the controller is updated then update the UI.
     controller.addListener(() {
