@@ -70,111 +70,103 @@ public class FastQrReaderViewPlugin implements MethodCallHandler, PluginRegistry
             };
 
     private static CameraManager cameraManager;
+    private static QrReader camera;
+    private static MethodChannel channel;
+
     private final FlutterView view;
-    private QrReader camera;
+
     private Activity activity;
     private Registrar registrar;
     private Application.ActivityLifecycleCallbacks activityLifecycleCallbacks;
-    // The code to run after requesting camera permissions.
-    private Runnable cameraPermissionContinuation;
     private boolean requestingPermission;
-    private static MethodChannel channel;
     private Result permissionResult;
 
-    // Whether we should ignore process(). This is usually caused by feeding input data faster than
-    // the model can handle.
-//    private final AtomicBoolean shouldThrottle = new AtomicBoolean(false);
-
-
     private FastQrReaderViewPlugin(Registrar registrar, FlutterView view, Activity activity) {
-
+        Log.d("TestSimone", "new instance FastQrReaderViewPlugin");
         this.registrar = registrar;
         this.view = view;
         this.activity = activity;
+        this.activityLifecycleCallbacks = new Application.ActivityLifecycleCallbacks() {
+            @Override
+            public void onActivityCreated(Activity activity, Bundle savedInstanceState) {
+                Log.d("TestSimone", "onActivityCreated");
+            }
 
+            @Override
+            public void onActivityStarted(Activity activity) {
+                Log.d("TestSimone", "onActivityStarted");
+            }
+
+            @Override
+            public void onActivityResumed(Activity activity) {
+                Log.d("TestSimone", "onActivityResumed");
+                if (requestingPermission) {
+                    requestingPermission = false;
+                    return;
+                }
+                if (activity == FastQrReaderViewPlugin.this.activity) {
+                    if (camera != null) {
+                        camera.startCameraSource();
+                    }
+                }
+            }
+
+            @Override
+            public void onActivityPaused(Activity activity) {
+                Log.d("TestSimone", "onActivityPaused");
+                if (activity == FastQrReaderViewPlugin.this.activity) {
+                    if (camera != null) {
+                        if (camera.preview != null) {
+                            camera.preview.stop();
+
+                        }
+                    }
+                }
+            }
+
+            @Override
+            public void onActivityStopped(Activity activity) {
+                Log.d("TestSimone", "onActivityStopped");
+                if (activity == FastQrReaderViewPlugin.this.activity) {
+                    if (camera != null) {
+                        if (camera.preview != null) {
+                            camera.preview.stop();
+                        }
+
+                        if (camera.cameraSource != null) {
+                            camera.cameraSource.release();
+                        }
+                    }
+                }
+            }
+
+            @Override
+            public void onActivitySaveInstanceState(Activity activity, Bundle outState) {
+                Log.d("TestSimone", "onActivitySaveInstanceState");
+            }
+
+            @Override
+            public void onActivityDestroyed(Activity activity) {
+                Log.d("TestSimone", "onActivityDestroyed");
+
+            }
+        };
         registrar.addRequestPermissionsResultListener(new CameraRequestPermissionsListener());
-
-        this.activityLifecycleCallbacks =
-                new Application.ActivityLifecycleCallbacks() {
-                    @Override
-                    public void onActivityCreated(Activity activity, Bundle savedInstanceState) {
-                    }
-
-                    @Override
-                    public void onActivityStarted(Activity activity) {
-                    }
-
-                    @Override
-                    public void onActivityResumed(Activity activity) {
-                        if (requestingPermission) {
-                            requestingPermission = false;
-                            return;
-                        }
-                        if (activity == FastQrReaderViewPlugin.this.activity) {
-                            if (camera != null) {
-                                camera.startCameraSource();
-                            }
-                        }
-                    }
-
-                    @Override
-                    public void onActivityPaused(Activity activity) {
-                        if (activity == FastQrReaderViewPlugin.this.activity) {
-                            if (camera != null) {
-                                if (camera.preview != null) {
-                                    camera.preview.stop();
-
-                                }
-                            }
-                        }
-                    }
-
-                    @Override
-                    public void onActivityStopped(Activity activity) {
-                        if (activity == FastQrReaderViewPlugin.this.activity) {
-                            if (camera != null) {
-                                if (camera.preview != null) {
-                                    camera.preview.stop();
-                                }
-
-                                if (camera.cameraSource != null) {
-                                    camera.cameraSource.release();
-                                }
-                            }
-                        }
-                    }
-
-                    @Override
-                    public void onActivitySaveInstanceState(Activity activity, Bundle outState) {
-                    }
-
-                    @Override
-                    public void onActivityDestroyed(Activity activity) {
-
-                    }
-                };
     }
 
     /**
      * Plugin registration.
      */
     public static void registerWith(Registrar registrar) {
-        channel =
-                new MethodChannel(registrar.messenger(), "fast_qr_reader_view");
-
+        channel = new MethodChannel(registrar.messenger(), "fast_qr_reader_view");
         cameraManager = (CameraManager) registrar.activity().getSystemService(Context.CAMERA_SERVICE);
-
-        channel.setMethodCallHandler(
-                new FastQrReaderViewPlugin(registrar, registrar.view(), registrar.activity()));
+        channel.setMethodCallHandler(new FastQrReaderViewPlugin(registrar, registrar.view(), registrar.activity()));
 
         FastQrReaderViewPlugin plugin = new FastQrReaderViewPlugin(registrar, registrar.view(), registrar.activity());
         channel.setMethodCallHandler(plugin);
         registrar.addRequestPermissionsResultListener(plugin);
     }
 
-    /*
-     * Open Settings screens
-     */
     private void openSettings() {
         Activity activity = registrar.activity();
         Intent intent = new Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS, Uri.parse("package:" + activity.getPackageName()));
@@ -186,13 +178,14 @@ public class FastQrReaderViewPlugin implements MethodCallHandler, PluginRegistry
     @Override
     public boolean onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
         if (requestCode == REQUEST_PERMISSION) {
+            Log.d("TestSimone", "Result permission ON CLASS BASE");
             // for each permission check if the user granted/denied them
             // you may want to group the rationale in a single dialog,
             // this is just an example
             for (int i = 0, len = permissions.length; i < len; i++) {
                 String permission = permissions[i];
                 if (grantResults[i] == PackageManager.PERMISSION_DENIED) {
-                // user rejected the permission
+                    // user rejected the permission
                     boolean showRationale = ActivityCompat.shouldShowRequestPermissionRationale( activity, permission );
                     if (! showRationale) {
                         // user also CHECKED "never ask again"
@@ -217,17 +210,18 @@ public class FastQrReaderViewPlugin implements MethodCallHandler, PluginRegistry
         return false;
     }
 
-
     @Override
     public void onMethodCall(MethodCall call, final Result result) {
         switch (call.method) {
             case "init":
+                Log.d("TestSimone", "init");
                 if (camera != null) {
                     camera.close();
                 }
                 result.success(null);
                 break;
             case "availableCameras":
+                Log.d("TestSimone", "availableCameras");
                 try {
                     String[] cameraNames = cameraManager.getCameraIdList();
                     List<Map<String, Object>> cameras = new ArrayList<>();
@@ -259,6 +253,7 @@ public class FastQrReaderViewPlugin implements MethodCallHandler, PluginRegistry
                 }
                 break;
             case "initialize": {
+                Log.d("TestSimone", "initialize");
                 String cameraName = call.argument("cameraName");
                 String resolutionPreset = call.argument("resolutionPreset");
                 ArrayList<String> codeFormats = call.argument("codeFormats");
@@ -270,12 +265,15 @@ public class FastQrReaderViewPlugin implements MethodCallHandler, PluginRegistry
                 break;
             }
             case "startScanning":
+                Log.d("TestSimone", "startScanning");
                 startScanning(result);
                 break;
             case "stopScanning":
+                Log.d("TestSimone", "stopScanning");
                 stopScanning(result);
                 break;
             case "checkPermission":
+                Log.d("TestSimone", "checkPermission");
                 String permission;
                 if (ContextCompat.checkSelfPermission(activity, Manifest.permission.CAMERA) == PackageManager.PERMISSION_GRANTED) {
                     permission = "granted";
@@ -285,16 +283,20 @@ public class FastQrReaderViewPlugin implements MethodCallHandler, PluginRegistry
                 result.success(permission);
                 break;
             case "requestPermission":
+                Log.d("TestSimone", "requestPermission");
                 this.permissionResult = result;
                 Activity activity = registrar.activity();
                 ActivityCompat.requestPermissions(activity, new String[]{Manifest.permission.CAMERA}, REQUEST_PERMISSION);
                 break;
             case "settings":
+                Log.d("TestSimone", "settings");
                 openSettings();
             case "toggleFlash":
+                Log.d("TestSimone", "toggleFlash");
                 toggleFlash(result);
                 break;
             case "dispose": {
+                Log.d("TestSimone", "dispose");
                 if (camera != null) {
                     camera.dispose();
                 }
@@ -322,83 +324,10 @@ public class FastQrReaderViewPlugin implements MethodCallHandler, PluginRegistry
         }
     }
 
-    private class CameraRequestPermissionsListener
-            implements PluginRegistry.RequestPermissionsResultListener {
-        @Override
-        public boolean onRequestPermissionsResult(int id, String[] permissions, int[] grantResults) {
-            if (id == CAMERA_REQUEST_ID) {
-                cameraPermissionContinuation.run();
-                return true;
-            }
-            return false;
-        }
-    }
-
-
     void startScanning(@NonNull Result result) {
         camera.scanning = true;
         camera.barcodeScanningProcessor.shouldThrottle.set(false);
         result.success(null);
-//        camera.imageReader.setOnImageAvailableListener(
-//                new ImageReader.OnImageAvailableListener() {
-//                    @Override
-//                    public void onImageAvailable(ImageReader reader) {
-//
-//                        if (camera.scanning) {
-//                            try (Image image = reader.acquireLatestImage()) {
-//
-//                                if (shouldThrottle.get()) {
-//                                    image.close();
-//                                    return;
-//                                }
-//                                shouldThrottle.set(true);
-//
-//                                FirebaseVisionImage test = FirebaseVisionImage.fromByteBuffer(image.getPlanes()[0].getBuffer(), new FirebaseVisionImageMetadata.Builder()
-//                                        .setFormat(FirebaseVisionImageMetadata.IMAGE_FORMAT_NV21)
-//                                        .setHeight(image.getHeight())
-//                                        .setWidth(image.getWidth())
-//                                        .build());
-////                                FirebaseVisionImage test = FirebaseVisionImage.fromMediaImage(image, FirebaseVisionImageMetadata.ROTATION_0); // Slower in my experience
-//                                image.close();
-//
-//                                camera.codeDetector.detectInImage(test).addOnSuccessListener(new OnSuccessListener<List<FirebaseVisionBarcode>>() {
-//                                    @Override
-//                                    public void onSuccess(List<FirebaseVisionBarcode> firebaseVisionBarcodes) {
-//                                        if (camera.scanning) {
-//                                            if (firebaseVisionBarcodes.size() > 0) {
-//                                                Log.w(TAG, "onSuccess: " + firebaseVisionBarcodes.get(0).getRawValue());
-//                                                channel.invokeMethod("updateCode", firebaseVisionBarcodes.get(0).getRawValue());
-////                                                Map<String, String> event = new HashMap<>();
-////                                                event.put("eventType", "cameraClosing");
-////                                                camera.eventSink.success(event);
-//                                                stopScanning();
-//                                            }
-//                                        }
-//                                        shouldThrottle.set(false);
-//                                    }
-//                                }).addOnFailureListener(new OnFailureListener() {
-//                                    @Override
-//                                    public void onFailure(@NonNull Exception e) {
-//                                        shouldThrottle.set(false);
-////                                            Log.d("test", "asdasd");
-//                                        e.printStackTrace();
-//                                    }
-//                                });
-//
-//                            } catch (Exception e) {
-//                                shouldThrottle.set(false);
-//                                e.printStackTrace();
-//                            }
-//                        }
-//                    }
-//                },
-//                camera.codeDetectionHandler);
-//
-//        try (Image image = camera.imageReader.acquireLatestImage()) {
-//            image.close();
-//        } catch (Exception e) {
-//            e.printStackTrace();
-//        }
     }
 
     void stopScanning(@NonNull Result result) {
@@ -409,8 +338,6 @@ public class FastQrReaderViewPlugin implements MethodCallHandler, PluginRegistry
     private void stopScanning() {
         camera.scanning = false;
         camera.barcodeScanningProcessor.shouldThrottle.set(true);
-//        camera.imageReader.setOnImageAvailableListener(null, null);
-//        camera.imageReader.close();
     }
 
     void toggleFlash(@NonNull Result result) {
@@ -422,7 +349,6 @@ public class FastQrReaderViewPlugin implements MethodCallHandler, PluginRegistry
         camera.cameraSource.toggleFlash();
     }
 
-
     private class QrReader {
 
         private static final int PERMISSION_REQUESTS = 1;
@@ -430,51 +356,17 @@ public class FastQrReaderViewPlugin implements MethodCallHandler, PluginRegistry
         private CameraSource cameraSource = null;
         private CameraSourcePreview preview;
 
-        private final FlutterView.SurfaceTextureEntry textureEntry;
-
-        //        private CameraDevice cameraDevice;
-//        private CameraCaptureSession cameraCaptureSession;
-        private EventChannel.EventSink eventSink;
-//        private ImageReader imageReader;
-
         BarcodeScanningProcessor barcodeScanningProcessor;
-
         ArrayList<Integer> reqFormats;
-        private int sensorOrientation;
+        private final FlutterView.SurfaceTextureEntry textureEntry;
+        private EventChannel.EventSink eventSink;
         private boolean isFrontFacing;
-        private String cameraName;
-        private Size captureSize;
-        private Size previewSize;
-        //        private CaptureRequest.Builder captureRequestBuilder;
-        private Size videoSize;
-        //        //        private MediaRecorder mediaRecorder;
-////        private boolean recordingVideo;
-//        FirebaseVisionBarcodeDetectorOptions visionOptions;
-//        FirebaseVisionBarcodeDetector codeDetector;
-//        private Handler codeDetectionHandler = null;
-//        private HandlerThread mHandlerThread = null;
-//
         private boolean scanning;
+        private Size captureSize;
+        private Runnable cameraPermissionContinuation;
 
-        private void startCameraSource() {
-            if (cameraSource != null) {
-                try {
-                    if (preview == null) {
-                        Log.d(TAG, "resume: Preview is null");
-                    } else {
-                        preview.start(cameraSource);
-                    }
-                } catch (IOException e) {
-                    Log.e(TAG, "Unable to start camera source.", e);
-                    cameraSource.release();
-                    cameraSource = null;
-                }
-            }
-        }
-
-        //
         QrReader(final String cameraName, final String resolutionPreset, final ArrayList<String> formats, @NonNull final Result result) {
-
+            Log.d("TestSimone", "" + cameraName + " " + resolutionPreset + " " + result);
             // AVAILABLE FORMATS:
             // enum CodeFormat { codabar, code39, code93, code128, ean8, ean13, itf, upca, upce, aztec, datamatrix, pdf417, qr }
 
@@ -526,7 +418,7 @@ public class FastQrReaderViewPlugin implements MethodCallHandler, PluginRegistry
                 StreamConfigurationMap streamConfigurationMap =
                         characteristics.get(CameraCharacteristics.SCALER_STREAM_CONFIGURATION_MAP);
                 //noinspection ConstantConditions
-                sensorOrientation = characteristics.get(CameraCharacteristics.SENSOR_ORIENTATION);
+                int sensorOrientation = characteristics.get(CameraCharacteristics.SENSOR_ORIENTATION);
                 //noinspection ConstantConditions
                 isFrontFacing =
                         characteristics.get(CameraCharacteristics.LENS_FACING)
@@ -537,10 +429,13 @@ public class FastQrReaderViewPlugin implements MethodCallHandler, PluginRegistry
                 if (cameraPermissionContinuation != null) {
                     result.error("cameraPermission", "Camera permission request ongoing", null);
                 }
+
+                Log.d("TestSimone", "cameraPermissionContinuation new Instance");
                 cameraPermissionContinuation =
                         new Runnable() {
                             @Override
                             public void run() {
+                                Log.d("TestSimone", "cameraPermissionContinuation Run");
                                 cameraPermissionContinuation = null;
                                 if (!hasCameraPermission()) {
                                     result.error(
@@ -564,7 +459,7 @@ public class FastQrReaderViewPlugin implements MethodCallHandler, PluginRegistry
                         registrar
                                 .activity()
                                 .requestPermissions(
-                                        new String[]{Manifest.permission.CAMERA, Manifest.permission.RECORD_AUDIO},
+                                        new String[]{Manifest.permission.CAMERA},
                                         CAMERA_REQUEST_ID);
                     }
                 }
@@ -575,7 +470,22 @@ public class FastQrReaderViewPlugin implements MethodCallHandler, PluginRegistry
             }
         }
 
-        //
+        private void startCameraSource() {
+            if (cameraSource != null) {
+                try {
+                    if (preview == null) {
+                        Log.d(TAG, "resume: Preview is null");
+                    } else {
+                        preview.start(cameraSource);
+                    }
+                } catch (IOException e) {
+                    Log.e(TAG, "Unable to start camera source.", e);
+                    cameraSource.release();
+                    cameraSource = null;
+                }
+            }
+        }
+
         private void registerEventChannel() {
             new EventChannel(
                     registrar.messenger(), "fast_qr_reader_view/cameraEvents" + textureEntry.id())
@@ -593,16 +503,13 @@ public class FastQrReaderViewPlugin implements MethodCallHandler, PluginRegistry
                             });
         }
 
-        //
         private boolean hasCameraPermission() {
             return Build.VERSION.SDK_INT < Build.VERSION_CODES.M
                     || activity.checkSelfPermission(Manifest.permission.CAMERA)
                     == PackageManager.PERMISSION_GRANTED;
         }
 
-        //
-        private void computeBestPreviewAndRecordingSize(
-                StreamConfigurationMap streamConfigurationMap, Size minPreviewSize, Size captureSize) {
+        private void computeBestPreviewAndRecordingSize(StreamConfigurationMap streamConfigurationMap, Size minPreviewSize, Size captureSize) {
             Size[] sizes = streamConfigurationMap.getOutputSizes(SurfaceTexture.class);
             float captureSizeRatio = (float) captureSize.getWidth() / captureSize.getHeight();
             List<Size> goodEnough = new ArrayList<>();
@@ -616,6 +523,8 @@ public class FastQrReaderViewPlugin implements MethodCallHandler, PluginRegistry
 
             Collections.sort(goodEnough, new CompareSizesByArea());
 
+            Size previewSize;
+            Size videoSize;
             if (goodEnough.isEmpty()) {
                 previewSize = sizes[0];
                 videoSize = sizes[0];
@@ -641,8 +550,6 @@ public class FastQrReaderViewPlugin implements MethodCallHandler, PluginRegistry
                             new CompareSizesByArea());
         }
 
-        //
-//
         @SuppressLint("MissingPermission")
         private void open(@Nullable final Result result) {
             if (!hasCameraPermission()) {
@@ -669,7 +576,6 @@ public class FastQrReaderViewPlugin implements MethodCallHandler, PluginRegistry
                     }
                 };
                 cameraSource.setMachineLearningFrameProcessor(barcodeScanningProcessor);
-//                    test.shouldThrottle.set(true);
                 preview = new CameraSourcePreview(activity, null, textureEntry.surfaceTexture());
 
                 startCameraSource();
@@ -680,149 +586,9 @@ public class FastQrReaderViewPlugin implements MethodCallHandler, PluginRegistry
                 reply.put("previewWidth", cameraSource.getPreviewSize().getWidth());
                 reply.put("previewHeight", cameraSource.getPreviewSize().getHeight());
                 result.success(reply);
-
-
-//                    imageReader =
-//                            ImageReader.newInstance(
-//                                    captureSize.getWidth(), captureSize.getHeight(), ImageFormat.YUV_420_888, 2);
-//                    cameraManager.openCamera(
-//                            cameraName,
-//                            new CameraDevice.StateCallback() {
-//                                @Override
-//                                public void onOpened(@NonNull CameraDevice cameraDevice) {
-//                                    QrReader.this.cameraDevice = cameraDevice;
-//                                    try {
-//                                        startPreview();
-//                                    } catch (CameraAccessException e) {
-//                                        if (result != null)
-//                                            result.error("CameraAccess", e.getMessage(), null);
-//                                    }
-//
-//                                    if (result != null) {
-//                                        Map<String, Object> reply = new HashMap<>();
-//                                        reply.put("textureId", textureEntry.id());
-//                                        reply.put("previewWidth", previewSize.getWidth());
-//                                        reply.put("previewHeight", previewSize.getHeight());
-//                                        result.success(reply);
-//                                    }
-//                                }
-//
-//                                @Override
-//                                public void onClosed(@NonNull CameraDevice camera) {
-//                                    if (eventSink != null) {
-//                                        Map<String, String> event = new HashMap<>();
-//                                        event.put("eventType", "cameraClosing");
-//                                        eventSink.success(event);
-//                                    }
-//                                    super.onClosed(camera);
-//                                }
-//
-//                                @Override
-//                                public void onDisconnected(@NonNull CameraDevice cameraDevice) {
-//                                    cameraDevice.close();
-//                                    QrReader.this.cameraDevice = null;
-//                                    sendErrorEvent("The camera was disconnected.");
-//                                }
-//
-//                                @Override
-//                                public void onError(@NonNull CameraDevice cameraDevice, int errorCode) {
-//                                    cameraDevice.close();
-//                                    QrReader.this.cameraDevice = null;
-//                                    String errorDescription;
-//                                    switch (errorCode) {
-//                                        case ERROR_CAMERA_IN_USE:
-//                                            errorDescription = "The camera device is in use already.";
-//                                            break;
-//                                        case ERROR_MAX_CAMERAS_IN_USE:
-//                                            errorDescription = "Max cameras in use";
-//                                            break;
-//                                        case ERROR_CAMERA_DISABLED:
-//                                            errorDescription =
-//                                                    "The camera device could not be opened due to a device policy.";
-//                                            break;
-//                                        case ERROR_CAMERA_DEVICE:
-//                                            errorDescription = "The camera device has encountered a fatal error";
-//                                            break;
-//                                        case ERROR_CAMERA_SERVICE:
-//                                            errorDescription = "The camera service has encountered a fatal error.";
-//                                            break;
-//                                        default:
-//                                            errorDescription = "Unknown camera error";
-//                                    }
-//                                    sendErrorEvent(errorDescription);
-//                                }
-//                            },
-//                            null);
-//                } catch (CameraAccessException e) {
-//                    if (result != null) result.error("cameraAccess", e.getMessage(), null);
-//                }
             }
         }
 
-        //
-//
-//        private void startPreview() throws CameraAccessException {
-//
-//
-////            FirebaseVisionBarcodeDetectorOptions options = new FirebaseVisionBarcodeDetectorOptions.Builder()
-////                    .setBarcodeFormats(FirebaseVisionBarcode.FORMAT_QR_CODE)
-////                    .build();
-////
-////            FirebaseVisionBarcodeDetector detector = FirebaseVision.getInstance()
-////                    .getVisionBarcodeDetector(options);
-//////detector.detectInImage(FirebaseVisionImage.)
-//////        detector.detectInImage(FirebaseVisionImage.fromByteBuffer())
-////            closeCaptureSession();
-//
-//            SurfaceTexture surfaceTexture = textureEntry.surfaceTexture();
-//            surfaceTexture.setDefaultBufferSize(previewSize.getWidth(), previewSize.getHeight());
-//            captureRequestBuilder = cameraDevice.createCaptureRequest(CameraDevice.TEMPLATE_PREVIEW);
-//
-//            List<Surface> surfaces = new ArrayList<>();
-//
-//
-//            Surface previewSurface = new Surface(surfaceTexture);
-//
-//            surfaces.add(previewSurface);
-//            surfaces.add(imageReader.getSurface());
-//            captureRequestBuilder.addTarget(previewSurface);
-//            captureRequestBuilder.addTarget(imageReader.getSurface());
-//
-//
-//            camera.
-//                    cameraDevice.createCaptureSession(
-//                    surfaces,
-//                    new CameraCaptureSession.StateCallback() {
-//
-//                        @Override
-//                        public void onConfigured(@NonNull CameraCaptureSession session) {
-//                            if (cameraDevice == null) {
-//                                sendErrorEvent("The camera was closed during configuration.");
-//                                return;
-//                            }
-//                            try {
-//                                cameraCaptureSession = session;
-//                                captureRequestBuilder.set(
-//                                        CaptureRequest.CONTROL_MODE, CameraMetadata.CONTROL_MODE_AUTO);
-//                                cameraCaptureSession.setRepeatingRequest(captureRequestBuilder.build(), new CameraCaptureSession.CaptureCallback() {
-//                                    @Override
-//                                    public void onCaptureCompleted(@NonNull CameraCaptureSession session, @NonNull CaptureRequest request, @NonNull TotalCaptureResult result) {
-//                                        super.onCaptureCompleted(session, request, result);
-//                                    }
-//                                }, null);
-//                            } catch (CameraAccessException e) {
-//                                sendErrorEvent(e.getMessage());
-//                            }
-//                        }
-//
-//                        @Override
-//                        public void onConfigureFailed(@NonNull CameraCaptureSession cameraCaptureSession) {
-//                            sendErrorEvent("Failed to configure the camera for preview.");
-//                        }
-//                    },
-//                    null);
-//        }
-//
         private void sendErrorEvent(String errorDescription) {
             if (eventSink != null) {
                 Map<String, String> event = new HashMap<>();
@@ -831,26 +597,6 @@ public class FastQrReaderViewPlugin implements MethodCallHandler, PluginRegistry
                 eventSink.success(event);
             }
         }
-//
-//        private void closeCaptureSession() {
-//            if (cameraCaptureSession != null) {
-//                cameraCaptureSession.close();
-//                cameraCaptureSession = null;
-//            }
-//        }
-//
-//        private void close() {
-//            closeCaptureSession();
-//
-//            if (cameraDevice != null) {
-//                cameraDevice.close();
-//                cameraDevice = null;
-//            }
-//            if (imageReader != null) {
-//                imageReader.close();
-//                imageReader = null;
-//            }
-//        }
 
         private void close() {
             if (preview != null) {
@@ -866,9 +612,7 @@ public class FastQrReaderViewPlugin implements MethodCallHandler, PluginRegistry
         }
 
         private void dispose() {
-//            close();
             textureEntry.release();
-//            if (camera != null) {
             if (preview != null) {
                 preview.stop();
             }
@@ -876,8 +620,21 @@ public class FastQrReaderViewPlugin implements MethodCallHandler, PluginRegistry
             if (cameraSource != null) {
                 cameraSource.release();
             }
-//            }
+        }
+    }
+
+    private class CameraRequestPermissionsListener implements PluginRegistry.RequestPermissionsResultListener {
+        @Override
+        public boolean onRequestPermissionsResult(int id, String[] permissions, int[] grantResults) {
+            if (id == CAMERA_REQUEST_ID) {
+                Log.d("TestSimone", "Result permission");
+                if (camera.cameraPermissionContinuation != null) {
+                    Log.d("TestSimone", "cameraPermissionContinuation is not null");
+                    camera.cameraPermissionContinuation.run();
+                } else Log.d("TestSimone", "cameraPermissionContinuation is null");
+                return true;
+            }
+            return false;
         }
     }
 }
-
