@@ -143,7 +143,7 @@ AVCaptureMetadataOutputObjectsDelegate>
                                        AVMetadataObjectTypeCode128Code, @"code128",
                                        AVMetadataObjectTypeEAN8Code,  @"ean8",
                                        AVMetadataObjectTypeEAN13Code,@"ean13",
-                                       AVMetadataObjectTypeEAN13Code,@"itf",
+                                       AVMetadataObjectTypeITF14Code,@"itf",
                                        AVMetadataObjectTypeUPCECode,@"upce",
                                        AVMetadataObjectTypeAztecCode,@"aztec",
                                        AVMetadataObjectTypeDataMatrixCode,@"datamatrix",
