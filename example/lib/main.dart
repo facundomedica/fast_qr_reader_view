@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'dart:async';
 import 'package:fast_qr_reader_view/fast_qr_reader_view.dart';
 
-List<CameraDescription> cameras;
+late List<CameraDescription> cameras;
 
 void main() async {
   await runZonedGuarded(
@@ -21,7 +21,7 @@ void main() async {
   );
 }
 
-void logError(String code, String message) =>
+void logError(String code, String? message) =>
     print('Error: $code\nError Message: $message');
 
 class MyApp extends StatefulWidget {
@@ -30,9 +30,9 @@ class MyApp extends StatefulWidget {
 }
 
 class _MyAppState extends State<MyApp> with SingleTickerProviderStateMixin {
-  QRReaderController controller;
+  QRReaderController? controller;
   final GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey<ScaffoldState>();
-  AnimationController animationController;
+  late AnimationController animationController;
 
   @override
   void initState() {
@@ -71,7 +71,7 @@ class _MyAppState extends State<MyApp> with SingleTickerProviderStateMixin {
     });
   }
 
-  Animation<double> verticalPosition;
+  late Animation<double> verticalPosition;
 
   @override
   Widget build(BuildContext context) {
@@ -128,7 +128,7 @@ class _MyAppState extends State<MyApp> with SingleTickerProviderStateMixin {
 
   /// Display the preview from the camera (or a message if the preview is not available).
   Widget _cameraPreviewWidget() {
-    if (controller == null || !controller.value.isInitialized) {
+    if (controller == null || !controller!.value.isInitialized!) {
       return const Text(
         'No camera selected',
         style: const TextStyle(
@@ -139,8 +139,8 @@ class _MyAppState extends State<MyApp> with SingleTickerProviderStateMixin {
       );
     } else {
       return new AspectRatio(
-        aspectRatio: controller.value.aspectRatio,
-        child: new QRReaderPreview(controller),
+        aspectRatio: controller!.value.aspectRatio,
+        child: new QRReaderPreview(controller!),
       );
     }
   }
@@ -149,26 +149,26 @@ class _MyAppState extends State<MyApp> with SingleTickerProviderStateMixin {
     showInSnackBar(value.toString());
     // ... do something
     // wait 5 seconds then start scanning again.
-    new Future.delayed(const Duration(seconds: 5), controller.startScanning);
+    new Future.delayed(const Duration(seconds: 5), controller!.startScanning);
   }
 
   void onNewCameraSelected(CameraDescription cameraDescription) async {
     if (controller != null) {
-      await controller.dispose();
+      await controller!.dispose();
     }
     controller = new QRReaderController(cameraDescription, ResolutionPreset.low,
         [CodeFormat.qr, CodeFormat.pdf417], onCodeRead);
 
     // If the controller is updated then update the UI.
-    controller.addListener(() {
+    controller!.addListener(() {
       if (mounted) setState(() {});
-      if (controller.value.hasError) {
-        showInSnackBar('Camera error ${controller.value.errorDescription}');
+      if (controller!.value.hasError) {
+        showInSnackBar('Camera error ${controller!.value.errorDescription}');
       }
     });
 
     try {
-      await controller.initialize();
+      await controller!.initialize();
     } on QRReaderException catch (e) {
       logError(e.code, e.description);
       showInSnackBar('Error: ${e.code}\n${e.description}');
@@ -176,12 +176,12 @@ class _MyAppState extends State<MyApp> with SingleTickerProviderStateMixin {
 
     if (mounted) {
       setState(() {});
-      controller.startScanning();
+      controller!.startScanning();
     }
   }
 
   void showInSnackBar(String message) {
-    _scaffoldKey.currentState
-        .showSnackBar(new SnackBar(content: new Text(message)));
+    ScaffoldMessenger.maybeOf(_scaffoldKey.currentContext!)
+        ?.showSnackBar(SnackBar(content: new Text(message)));
   }
 }
