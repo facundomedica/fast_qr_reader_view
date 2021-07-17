@@ -353,7 +353,6 @@ class QRReaderController extends ValueNotifier<QRReaderValue> {
   /// Toggle flashlight
   Future<Null> toggleFlash() async {
     try {
-      value = value.copyWith(isScanning: false);
       await _channel.invokeMethod(
         'toggleFlash',
         <String, dynamic>{'textureId': _textureId},
