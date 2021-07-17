@@ -579,7 +579,7 @@ public class FastQrReaderViewPlugin implements FlutterPlugin, MethodCallHandler,
             } else {
 //                try {
                 cameraSource = new CameraSource(currentActivity);
-                cameraSource.setFacing(isFrontFacing ? 1 : 0);
+                cameraSource.setFacing(isFrontFacing ? CameraSource.CAMERA_FACING_FRONT : CameraSource.CAMERA_FACING_BACK);
                 barcodeScanningProcessor = new BarcodeScanningProcessor(reqFormats);
                 barcodeScanningProcessor.callback = new OnCodeScanned() {
                     @Override
