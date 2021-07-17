@@ -11,7 +11,7 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
-package co.apperto.fastqrreaderview.common;
+package dev.facundo.fastqrreaderview.common;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
@@ -19,7 +19,9 @@ import android.content.res.Configuration;
 import android.graphics.SurfaceTexture;
 import android.util.AttributeSet;
 import android.util.Log;
+import android.view.Surface;
 import android.view.SurfaceHolder;
+import android.view.SurfaceView;
 import android.view.ViewGroup;
 
 import com.google.android.gms.common.images.Size;
@@ -34,6 +36,7 @@ public class CameraSourcePreview extends ViewGroup {
 
     private Context context;
     SurfaceTexture surfaceView;
+    private SurfaceView mSurfaceView;
     private boolean startRequested;
     private boolean surfaceAvailable;
     private CameraSource cameraSource;
@@ -46,6 +49,9 @@ public class CameraSourcePreview extends ViewGroup {
         startRequested = false;
         surfaceAvailable = false;
 
+//        mSurfaceView = new SurfaceView(context);
+//        mSurfaceView.getHolder().addCallback(new SurfaceCallback());
+//surfaceView.
         surfaceView = surface;//new SurfaceView(context);
 
         surfaceAvailable = true;

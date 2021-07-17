@@ -4,14 +4,21 @@ import 'package:fast_qr_reader_view/fast_qr_reader_view.dart';
 
 List<CameraDescription> cameras;
 
-Future<Null> main() async {
-  // Fetch the available cameras before initializing the app.
-  try {
-    cameras = await availableCameras();
-  } on QRReaderException catch (e) {
-    logError(e.code, e.description);
-  }
-  runApp(new MyApp());
+void main() async {
+  await runZonedGuarded(
+    () async {
+      WidgetsFlutterBinding.ensureInitialized();
+
+      // Fetch the available cameras before initializing the app.
+      try {
+        cameras = await availableCameras();
+      } on QRReaderException catch (e) {
+        logError(e.code, e.description);
+      }
+      runApp(new MyApp());
+    },
+    (error, st) => print(error),
+  );
 }
 
 void logError(String code, String message) =>
@@ -51,7 +58,17 @@ class _MyAppState extends State<MyApp> with SingleTickerProviderStateMixin {
       });
 
     // pick the first available camera
-    onNewCameraSelected(cameras[0]);
+    checkCameraPermission().then((value) {
+      if (value == PermissionStatus.granted) {
+        onNewCameraSelected(cameras[0]);
+      } else {
+        requestCameraPermission().then((value) {
+          if (value == PermissionStatus.granted) {
+            onNewCameraSelected(cameras[0]);
+          }
+        });
+      }
+    });
   }
 
   Animation<double> verticalPosition;

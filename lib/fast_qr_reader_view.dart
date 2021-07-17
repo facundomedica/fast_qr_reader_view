@@ -3,7 +3,7 @@ import 'dart:async';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 
-final MethodChannel _channel = const MethodChannel('fast_qr_reader_view')..invokeMethod('init');
+const MethodChannel _channel = const MethodChannel('fast_qr_reader_view');
 
 enum CameraLensDirection { front, back, external }
 
@@ -70,6 +70,7 @@ CameraLensDirection _parseCameraLensDirection(String string) {
 /// May throw a [QRReaderException].
 Future<List<CameraDescription>> availableCameras() async {
   try {
+    await _channel.invokeMethod('init');
     final List<dynamic> cameras = await _channel.invokeMethod('availableCameras');
     return cameras.map((dynamic camera) {
       return new CameraDescription(
@@ -78,6 +79,7 @@ Future<List<CameraDescription>> availableCameras() async {
       );
     }).toList();
   } on PlatformException catch (e) {
+    print(e);
     throw new QRReaderException(e.code, e.message);
   }
 }
