@@ -1,3 +1,8 @@
+## 0.2.0
+
+- Now using Google ML Kit
+- Complete refactor on Android. Needs a lot of cleanup work!
+
 ## 0.1.5
 
 - Increasing firebase versions firebase-ml-vision to 18.0.1 and firebase-core to 16.0.5
