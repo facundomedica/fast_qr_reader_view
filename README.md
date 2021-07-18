@@ -35,8 +35,6 @@ Or in text format add the key:
 
 ### Android
 
-Add Firebase to your project following [this step](https://codelabs.developers.google.com/codelabs/flutter-firebase/#5) (only that step, not the entire guide).
-
 Change the minimum Android sdk version to 21 (or higher) in your `android/app/build.gradle` file.
 
 ```
